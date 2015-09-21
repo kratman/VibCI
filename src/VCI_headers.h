@@ -55,7 +55,7 @@ const double k = 0.69503476; //Boltzmann constant (cm^-1)
 //Global derived constants
 const double h = 1/(2*pi); //Planck constant (cm^-1)
 
-//Globals
+//Global variables
 
 
 //Timers
@@ -74,5 +74,7 @@ void PrintFancyTitle();
 
 //Function definitions (alphabetical)
 #include "Core_functions.cpp"
+#include "Input_Reader.cpp"
+#include "Ladder.cpp"
 
 #endif

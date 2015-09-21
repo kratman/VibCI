@@ -1,3 +1,8 @@
+#########################################################
+#                                                       #
+# Ladder Operator Vibrational Configuration Interaction #
+#                                                       #
+#########################################################
 
 
 ### Compiler settings
@@ -19,6 +24,11 @@ lovcibin:
 	@echo ""; \
 	echo "### Compiling the LOVCI binary ###"
 	$(CXX) $(CXXFLAGS) ./src/LOVCI.cpp -o lovci $(LDFLAGS)
+
+lovcidev:	
+	@echo ""; \
+	echo "### Compiling the LOVCI binary ###"
+	$(CXX) $(CXXFLAGS) $(DEVFLAGS) ./src/LOVCI.cpp -o lovci $(LDFLAGS)
 
 checksyntax:	
 	@echo ""; \

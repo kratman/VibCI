@@ -7,14 +7,11 @@
 #                                                                             #
 ###############################################################################
 
- Input reader and error checker for LOVCI
+ Ladder operator routines for LOVCI
 
 */
 
-//Input reader
-
-
-//Error checker
+//Ladder operators
 
 
 
