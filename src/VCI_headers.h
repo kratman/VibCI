@@ -1,6 +1,6 @@
 /*
 
-############################################################################### 
+###############################################################################
 #                                                                             #
 #            Ladder Operator Vibrational Configuration Interaction            #
 #                              By: Eric G. Kratz                              #
@@ -49,8 +49,11 @@ const double pi = 4*atan(1); //Pi
 const double sqrt2 = pow(2,0.5); //Square root of 2
 
 //Global measured constants (NIST, CODATA 2010)
-const double k = 0; //Boltzmann constant (cm^-1)
-const double Har2eV = 27.21138505; //Hartrees to eV
+const double cs = 2.99792458e-10; //Speed of light (cm)
+const double k = 0.69503476; //Boltzmann constant (cm^-1)
+
+//Global derived constants
+const double h = 1/(2*pi); //Planck constant (cm^-1)
 
 //Globals
 
@@ -63,9 +66,13 @@ int EndTime = 0; //Time the calculation ends
 
 
 //Function declarations (alphabetical)
+bool CheckFile(const string&);
 
+int FindMaxThreads();
+
+void PrintFancyTitle();
 
 //Function definitions (alphabetical)
-
+#include "Core_functions.cpp"
 
 #endif
