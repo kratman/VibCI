@@ -20,6 +20,25 @@ lovcibin:
 	echo "### Compiling the LOVCI binary ###"
 	$(CXX) $(CXXFLAGS) ./src/LOVCI.cpp -o lovci $(LDFLAGS)
 
+checksyntax:	
+	@echo ""; \
+	echo "### Checking for warnings and syntax errors ###"
+	$(CXX) $(CXXFLAGS) $(DEVFLAGS) -fsyntax-only ./src/LOVCI.cpp -o lovci $(LDFLAGS)
+	@echo ""; \
+	echo "### Source code statistics ###"; \
+	echo "Number of LOVCI source code files:"; \
+	ls -al src/* | wc -l; \
+	echo "Total length of LOVCI (lines):"; \
+	cat src/* | wc -l; \
+
+stats:	
+	@echo ""; \
+	echo "### Source code statistics ###"; \
+	echo "Number of LOVCI source code files:"; \
+	ls -al src/* | wc -l; \
+	echo "Total length of LOVCI (lines):"; \
+	cat src/* | wc -l
+
 compdone:	
 	@echo ""; \
 	echo "Done."; \
