@@ -22,7 +22,10 @@ int main(int argc, char* argv[])
   //End of section
 
   //Initialize local variables
-
+  fstream vcidata,spectfile; //File streams for the input and output files
+  MatrixXd VCIHam; //Full Hamiltonian matrix
+  double RunTime; //Run time for the calculations
+  string TimeUnits; //Seconds, minutes, or hours for RunTime
   //End of section
 
   //Print title and compile date
@@ -35,24 +38,40 @@ int main(int argc, char* argv[])
   cout.flush();
   //End of section
 
-  //Read arguments
-
-  //End of section
-
-  //Read input
-
-  //End of section
-
-  //Check for errors
-
+  //Gather input and check for errors
+  ReadCIArgs(argc,argv,vcidata,spectfile); //Read arguments
+  ReadCIInput(VCIHam,vcidata); //Read input files
   //End of section
 
   //Calculate spectrum
-
+  ZerothHam(VCIHam);
+  AnharmHam(VCIHam);
   //End of section
 
   //Print results
-
+  cout << '\n';
+  
+  EndTime = (unsigned)time(0); //Time the program starts
+  RunTime = (double)(EndTime-StartTime);
+  if (RunTime >= 3600)
+  {
+    RunTime /= 3600;
+    TimeUnits = "hours";
+  }
+  else if (RunTime >= 60)
+  {
+    RunTime /= 60;
+    TimeUnits = "minutes";
+  }
+  else
+  {
+    TimeUnits = "seconds";
+  }
+  cout << "Run time: " << RunTime;
+  cout << " " << TimeUnits;
+  cout << '\n' << '\n';
+  cout << "Done.";
+  cout << '\n' << '\n';
   //End of section
 
   //Quit

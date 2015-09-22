@@ -46,31 +46,58 @@ using namespace std;
 
 //Global exact constants
 const double pi = 4*atan(1); //Pi
-const double sqrt2 = pow(2,0.5); //Square root of 2
 
 //Global measured constants (NIST, CODATA 2010)
 const double cs = 2.99792458e-10; //Speed of light (cm)
 const double k = 0.69503476; //Boltzmann constant (cm^-1)
 
 //Global derived constants
-const double h = 1/(2*pi); //Planck constant (cm^-1)
-
-//Global variables
-
+const double h = 2*pi; //Planck constant (cm^-1)
 
 //Timers
 int StartTime = 0; //Time the calculation starts
 int EndTime = 0; //Time the calculation ends
 
 //Custom classes
+class HOFunc
+{
+  //Class for harmonic oscillator basis functions
+  public:
+    int ModeID; //Identity of the mode
+    double Freq; //Frequency
+    double Quanta; //Number of quanta in the mode
+};
 
+class WaveFunction
+{
+  //Class for storing a VCI wavefunction
+  public:
+    int M; //Number of modes
+    vector<HOFunc> Modes; //Functions
+};
+
+//Global variables
+int Ncpus; //Number of CPUs for the calculations
+vector<WaveFunction> Basis; //Full basis set
 
 //Function declarations (alphabetical)
+void AnharmHam(MatrixXd&);
+
+void AnnihilationLO(double&,int&);
+
 bool CheckFile(const string&);
+
+void CreationLO(double&,int&);
 
 int FindMaxThreads();
 
 void PrintFancyTitle();
+
+void ReadCIArgs(int,char*,fstream&,fstream&);
+
+void ReadCIInput(MatrixXd&,fstream&);
+
+void ZerothHam(MatrixXd&);
 
 //Function definitions (alphabetical)
 #include "Core_functions.cpp"
