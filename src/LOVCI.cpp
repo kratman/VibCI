@@ -24,13 +24,14 @@ int main(int argc, char* argv[])
   //Initialize local variables
   fstream vcidata,spectfile; //File streams for the input and output files
   MatrixXd VCIHam; //Full Hamiltonian matrix
+  MatrixXd CIVec; //CI eigenvectors (wavefunction)
+  VectorXd CIFreq; //CI eigenvalues (frequencies
   double RunTime; //Run time for the calculations
   string TimeUnits; //Seconds, minutes, or hours for RunTime
   //End of section
 
   //Print title and compile date
   PrintFancyTitle();
-  cout << '\n';
   cout << "Last modification: ";
   cout << __TIME__ << " on ";
   cout << __DATE__ << '\n';
@@ -39,32 +40,45 @@ int main(int argc, char* argv[])
   //End of section
 
   //Gather input and check for errors
+  cout << "Reading input..." << '\n';
   ReadCIArgs(argc,argv,vcidata,spectfile); //Read arguments
   ReadCIInput(VCIHam,vcidata); //Read input files
   //End of section
 
   //Calculate spectrum
-  ZerothHam(VCIHam);
-  AnharmHam(VCIHam);
+  cout << "Constructing the CI Hamiltonian...";
+  cout << '\n' << '\n';
+  cout.flush(); //Print progress
+  ZerothHam(VCIHam); //Harmonic terms
+  AnharmHam(VCIHam); //Anharmonic terms
+  cout << "Diagonalizing the Hamiltonian...";
+  cout << '\n' << '\n';
+  cout.flush(); //Print progress
+  VCIDiagonalize(VCIHam,CIVec,CIFreq); //Diagonalization wrapper
   //End of section
 
   //Print results
-  cout << '\n';
-  
-  EndTime = (unsigned)time(0); //Time the program starts
-  RunTime = (double)(EndTime-StartTime);
+  cout << "Printing the spectrum...";
+  cout << '\n' << '\n';
+  cout.flush(); //Print progress
+  PrintSpectrum(CIFreq,spectfile); //Convert the frequencies to a spectrum
+  EndTime = (unsigned)time(0); //Time the calculation stops
+  RunTime = (double)(EndTime-StartTime); //Total run time
   if (RunTime >= 3600)
   {
+    //Switch to hours
     RunTime /= 3600;
     TimeUnits = "hours";
   }
   else if (RunTime >= 60)
   {
+    //Switch to minutes
     RunTime /= 60;
     TimeUnits = "minutes";
   }
   else
   {
+    //Stick with seconds
     TimeUnits = "seconds";
   }
   cout << "Run time: " << RunTime;

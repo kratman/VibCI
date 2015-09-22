@@ -63,6 +63,16 @@ void AnharmHam(MatrixXd& H)
   return;
 };
 
+inline void VCIDiagonalize(MatrixXd& H, MatrixXd& Psi, VectorXd& E)
+{
+  //Wrapper for the Eigen diagonalization
+  EigenSolver<MatrixXd> SE; //Schrodinger equation
+  SE.compute(H);
+  E = SE.eigenvalues().real();
+  Psi = SE.eigenvectors().real();
+  return;
+};
+
 inline double LBroaden(double fi, double f, double wid)
 {
   //Function to calculate the unnormalized Lorentz width
@@ -71,5 +81,26 @@ inline double LBroaden(double fi, double f, double wid)
   lint *= lint;
   lint += (wid*wid);
   lint = wid/(pi*lint);
+  //Return final intensity
   return lint;
 };
+
+void PrintSpectrum(VectorXd& Freqs, fstream& outfile)
+{
+  //Function to print the CI spectrum
+  double Fmin = 0; //Start of the spectrum
+  double Fmax = Freqs.maxCoeff()+(20*LorentzWid); //End of the spectrum
+  double fn = Fmin; //Current frequency at point n
+  //All intensity derives from the fundamental transitions
+  while (fn <= Fmax)
+  {
+    double In = 0; //Intensity at point n
+    
+    //Write data
+    outfile << fn << " " << In << '\n';
+    //Go to point n+1
+    fn += DeltaFreq;
+  }
+  return;
+};
+

@@ -15,6 +15,7 @@
 void ReadCIArgs(int argc, char* argv[], fstream& vcidata, fstream& spectfile)
 {
   //Function to read the command line arguments
+  bool DoQuit = 0; //Exit if an error is detected
   string dummy; //Generic string
   stringstream call; //Stream for system calls and reading/writing files
   //Read command line arguments
@@ -82,8 +83,65 @@ void ReadCIArgs(int argc, char* argv[], fstream& vcidata, fstream& spectfile)
       spectfile.open(argv[i+1],ios_base::out);
     }
   }
-  //Check for argument error
-  
+  //Check for argument errors
+  if (Ncpus < 1)
+  {
+    //Checks the number of threads and continue
+    cout << " Warning: Calculations cannot run with ";
+    cout << Ncpus << " CPUs.";
+    cout << '\n';
+    cout << "  Do you know how computers work?";
+    cout << " Ncpus set to 1";
+    cout << '\n';
+    Ncpus = 1;
+    cout.flush(); //Print warning
+  }
+  if (Ncpus > FindMaxThreads())
+  {
+    cout << " Warning: Too many threads requested.";
+    cout << '\n';
+    cout << "  Requested: " << Ncpus << ",";
+    cout << " Available: " << FindMaxThreads();
+    cout << '\n';
+    cout << "  Ncpus set to " << FindMaxThreads();
+    cout << '\n';
+    Ncpus = FindMaxThreads();
+    cout.flush(); //Print warning
+  }
+  if (!vcidata.good())
+  {
+    //Check input file
+    cout << " Error: Could not open input file.";
+    cout << '\n';
+    DoQuit = 1;
+  }
+  if (!spectfile.good())
+  {
+    //Check output file
+    cout << " Error: Could not output file.";
+    cout << '\n';
+    DoQuit = 1;
+  }
+
+  if (DoQuit)
+  {
+    //Quit if there is an error
+    cout << '\n';
+    cout.flush();
+    exit(0);
+  }
+  else
+  {
+    //Sarcastically continue
+    cout << '\n';
+    cout << "No fatal errors detected.";
+    cout << '\n';
+    cout << " And there was much rejoicing. Yay...";
+    cout << '\n' << '\n';
+    cout.flush();
+  }
+  //Set threads
+  omp_set_num_threads(Ncpus);
   return;
 };
 
@@ -121,7 +179,7 @@ void ReadCIInput(MatrixXd& VCIHam, fstream& vcidata)
     tmp.Spect = 1;
     vcidata >> dummy; //Throw out ID number
     vcidata >> tmp.Freq; //Frequency
-    tmp.Quanta = 1; //Max number of quanta
+    tmp.Quanta = 1; //Only one state
     vcidata >> tmp.ModeInt; //Intensity
     SpectCount.push_back(tmp);
   }

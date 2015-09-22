@@ -80,6 +80,7 @@ class WaveFunction
 //Global variables
 int Ncpus = 0; //Number of CPUs for the calculations
 double LorentzWid = 1; //Width of the peaks in the final spectrum
+double DeltaFreq = 0.01; //Spectrum resolution
 vector<WaveFunction> BasisSet; //Full basis set
 
 //Function declarations (alphabetical)
@@ -91,11 +92,15 @@ bool CheckFile(const string&);
 
 void CreationLO(double&,int&);
 
+void VCIDiagonalize(MatrixXd&,MatrixXd&,VectorXd&);
+
 int FindMaxThreads();
 
 double LBroaden(double,double,double);
 
 void PrintFancyTitle();
+
+void PrintSpectrum(VectorXd&,fstream&);
 
 void ReadCIArgs(int,char*,fstream&,fstream&);
 
