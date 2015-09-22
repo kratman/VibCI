@@ -63,9 +63,10 @@ class HOFunc
 {
   //Class for harmonic oscillator basis functions
   public:
-    int ModeID; //Identity of the mode
+    bool Spect; //Spectator mode
     double Freq; //Frequency
-    double Quanta; //Number of quanta in the mode
+    int Quanta; //Number of quanta in the mode
+    double ModeInt; //Intensity
 };
 
 class WaveFunction
@@ -77,8 +78,9 @@ class WaveFunction
 };
 
 //Global variables
-int Ncpus; //Number of CPUs for the calculations
-vector<WaveFunction> Basis; //Full basis set
+int Ncpus = 0; //Number of CPUs for the calculations
+double LorentzWid = 1; //Width of the peaks in the final spectrum
+vector<WaveFunction> BasisSet; //Full basis set
 
 //Function declarations (alphabetical)
 void AnharmHam(MatrixXd&);
@@ -90,6 +92,8 @@ bool CheckFile(const string&);
 void CreationLO(double&,int&);
 
 int FindMaxThreads();
+
+double LBroaden(double,double,double);
 
 void PrintFancyTitle();
 

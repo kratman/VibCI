@@ -82,13 +82,120 @@ void ReadCIArgs(int argc, char* argv[], fstream& vcidata, fstream& spectfile)
       spectfile.open(argv[i+1],ios_base::out);
     }
   }
+  //Check for argument error
+  
   return;
 };
 
 void ReadCIInput(MatrixXd& VCIHam, fstream& vcidata)
 {
   //Function to read the input files
-  
+  string dummy; //Generic sting
+  //Count basis functions and read modes
+  bool ProgSet = 0; //Make the basis a progression in a mode
+  int Nspect = 0; //Number of spectator modes
+  int Nmodes = 0; //Number of different modes
+  vector<HOFunc> BasisCount; //Temp. storage of modes
+  vector<HOFunc> SpectCount; //Temp. storage of modes
+  //Active modes
+  vcidata >> dummy; //Clear junk
+  vcidata >> Nmodes; //Read modes
+  for (int i=0;i<Nmodes;i++)
+  {
+    //Actual vibrational modes
+    HOFunc tmp;
+    tmp.Spect = 0;
+    vcidata >> dummy; //Throw out ID number
+    vcidata >> tmp.Freq; //Frequency
+    vcidata >> tmp.Quanta; //Max number of quanta
+    vcidata >> tmp.ModeInt; //Intensity
+    BasisCount.push_back(tmp);
+  }
+  //Spectators
+  vcidata >> dummy; //Clear junk
+  vcidata >> Nspect; //Read spectator modes
+  for (int i=0;i<Nspect;i++)
+  {
+    //Spectator modes
+    HOFunc tmp;
+    tmp.Spect = 1;
+    vcidata >> dummy; //Throw out ID number
+    vcidata >> tmp.Freq; //Frequency
+    tmp.Quanta = 1; //Max number of quanta
+    vcidata >> tmp.ModeInt; //Intensity
+    SpectCount.push_back(tmp);
+  }
+  //Count states
+  if (ProgSet)
+  {
+    //Simple progression basis
+    
+  }
+  else
+  {
+    //Product basis
+    for (unsigned int i=0;i<BasisCount.size();i++)
+    {
+      if (i == 0)
+      {
+        Nmodes = (BasisCount[i].Quanta+1);
+      }
+      else
+      {
+        Nmodes *= (BasisCount[i].Quanta+1);
+      }
+    }
+    Nmodes += SpectCount.size();
+  }
+  //Create data structures
+  VCIHam = MatrixXd(Nmodes,Nmodes); //Create the Hamiltonian matrix
+  VCIHam.setZero(); //Ensure that the Hamiltonian matrix is empty
+  if (ProgSet)
+  {
+    //Create progression basis
+    for (unsigned int i=0;i<BasisCount.size();i++)
+    {
+      //Add 1D modes
+      for (int j=0;j<BasisCount[i].Quanta;j++)
+      {
+        WaveFunction temp;
+        temp.M = BasisCount.size();
+        for (unsigned int k=0;k<BasisCount.size();k++)
+        {
+          //Copy general information
+          HOFunc tmp;
+          tmp.Spect = 0;
+          tmp.Freq = BasisCount[k].Freq;
+          tmp.ModeInt = BasisCount[k].ModeInt;
+          //Add quanta
+          if (i == k)
+          {
+            tmp.Quanta = (j+1);
+          }
+          else
+          {
+            tmp.Quanta = 0;
+          }
+          //Save basis function component
+          temp.Modes.push_back(tmp);
+        }
+      BasisSet.push_back(temp);
+      }
+    }
+    //Add combination bands
+    
+    //Add spectator modes
+    for (unsigned int i=0;i<SpectCount.size();i++)
+    {
+      //Add 1D modes
+      
+    }
+  }
+  else
+  {
+    //Create product basis
+    
+  }
   return;
 };
 

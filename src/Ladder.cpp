@@ -12,7 +12,7 @@
 */
 
 //Ladder operators
-void CreationLO(double& ci, int& ni)
+inline void CreationLO(double& ci, int& ni)
 {
   //Creation ladder operator
   ci *= sqrt(ni+1); //Update coefficient
@@ -20,7 +20,7 @@ void CreationLO(double& ci, int& ni)
   return;
 };
 
-void AnnihilationLO(double& ci, int& ni)
+inline void AnnihilationLO(double& ci, int& ni)
 {
   //Annihilation ladder operator
   ci *= sqrt(ni); //Update coefficient
@@ -39,15 +39,15 @@ void ZerothHam(MatrixXd& H)
 {
   //Calculate the harmonic Hamiltonian matrix elements
   #pragma omp parallel for
-  for (unsigned int i=0;i<Basis.size();i++)
+  for (unsigned int i=0;i<BasisSet.size();i++)
   {
     //Loop over all modes
-    for (int j=0;j<Basis[i].M;j++)
+    for (int j=0;j<BasisSet[i].M;j++)
     {
       //Calculate partial energies
       double Ej = 0.5;
-      Ej += Basis[i].Modes[j].Quanta;
-      Ej *= Basis[i].Modes[j].Freq;
+      Ej += BasisSet[i].Modes[j].Quanta;
+      Ej *= BasisSet[i].Modes[j].Freq;
       //Update Hamiltonian
       H(i,i) += Ej;
     }
@@ -63,3 +63,13 @@ void AnharmHam(MatrixXd& H)
   return;
 };
 
+inline double LBroaden(double fi, double f, double wid)
+{
+  //Function to calculate the unnormalized Lorentz width
+  double lint; //Lorentz intensity
+  lint = (fi-f);
+  lint *= lint;
+  lint += (wid*wid);
+  lint = wid/(pi*lint);
+  return lint;
+};
