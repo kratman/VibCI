@@ -85,6 +85,32 @@ inline double LBroaden(double fi, double f, double wid)
   return lint;
 };
 
+int IsFund(WaveFunction& bfunc)
+{
+  //Tests if a basis functionis a fundamental transition
+  int fund = -1;
+  int sum = 0;
+  #pragma omp parallel for reduction(+:sum)
+  for (int i=0;i<bfunc.M;i++)
+  {
+    sum += bfunc.Modes[i].Quanta;
+  }
+  #pragma omp barrier
+  if (sum == 1)
+  {
+    #pragma omp parallel for
+    for (int i=0;i<bfunc.M;i++)
+    {
+      if (bfunc.Modes[i].Quanta == 1)
+      {
+        fund = i;
+      }
+    }
+    #pragma omp barrier
+  }
+  return fund;
+};
+
 void PrintSpectrum(VectorXd& Freqs, fstream& outfile)
 {
   //Function to print the CI spectrum

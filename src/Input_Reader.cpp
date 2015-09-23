@@ -154,7 +154,6 @@ void ReadCIInput(MatrixXd& VCIHam, fstream& vcidata)
   int Nspect = 0; //Number of spectator modes
   int Nmodes = 0; //Number of different modes
   vector<HOFunc> BasisCount; //Temp. storage of modes
-  vector<HOFunc> SpectCount; //Temp. storage of modes
   //Active modes
   vcidata >> dummy; //Clear junk
   vcidata >> Nmodes; //Read modes
@@ -181,7 +180,7 @@ void ReadCIInput(MatrixXd& VCIHam, fstream& vcidata)
     vcidata >> tmp.Freq; //Frequency
     tmp.Quanta = 1; //Only one state
     vcidata >> tmp.ModeInt; //Intensity
-    SpectCount.push_back(tmp);
+    SpectModes.push_back(tmp);
   }
   //Count states
   if (ProgSet)
@@ -203,7 +202,6 @@ void ReadCIInput(MatrixXd& VCIHam, fstream& vcidata)
         Nmodes *= (BasisCount[i].Quanta+1);
       }
     }
-    Nmodes += SpectCount.size();
   }
   //Create data structures
   VCIHam = MatrixXd(Nmodes,Nmodes); //Create the Hamiltonian matrix
@@ -242,12 +240,6 @@ void ReadCIInput(MatrixXd& VCIHam, fstream& vcidata)
     }
     //Add combination bands
     
-    //Add spectator modes
-    for (unsigned int i=0;i<SpectCount.size();i++)
-    {
-      //Add 1D modes
-      
-    }
   }
   else
   {
