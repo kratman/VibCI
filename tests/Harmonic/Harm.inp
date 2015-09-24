@@ -1,0 +1,12 @@
+Basis: Progression
+Prog_mode: 0 0
+Mixed_modes: 0
+Broadening: 10.0 0.05
+Modes: 3
+ 0 50.0 1 1.0
+ 1 1500.0 1 1.0
+ 2 3000.0 1 1.0
+Spectator_modes: 2
+ 4 100.0 1.0
+ 5 1000.0 1.0
+Force_constants: 0

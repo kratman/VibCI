@@ -151,20 +151,21 @@ void ReadCIInput(MatrixXd& VCIHam, fstream& vcidata)
   string dummy; //Generic sting
   //Count basis functions and read modes
   bool ProgSet = 0; //Make the basis a progression in a mode
-  int progmode = -1; //Mode for the progression
+  unsigned int progmode = 0; //Mode for the progression
   int ProgQuanta = 0; //Number of quanta for the progression
-  vector<int> ProgModes; //Modes with progressions
+  vector<unsigned int> ProgModes; //Modes with progressions
   int Nspect = 0; //Number of spectator modes
   int Nmodes = 0; //Number of different modes
   vector<HOFunc> BasisCount; //Temp. storage of modes
+  int Nfc = 0; //Number of force constants
   //Read basis set type
   vcidata >> dummy >> dummy;
   if ((dummy == "Progression") or (dummy == "progression"))
   {
     ProgSet = 1;
     vcidata >> dummy; //Clear junk
-    vcidata >> progmode;
-    vcidata >> ProgQuanta;
+    vcidata >> progmode; //Mode that forms the progressions
+    vcidata >> ProgQuanta; //Number of quanta in the progression
     int modect; //Number of modes with progressions
     vcidata >> dummy >> modect;
     for (int i=0;i<modect;i++)
@@ -183,7 +184,6 @@ void ReadCIInput(MatrixXd& VCIHam, fstream& vcidata)
   {
     //Actual vibrational modes
     HOFunc tmp;
-    tmp.Spect = 0;
     vcidata >> dummy; //Throw out ID number
     vcidata >> tmp.Freq; //Frequency
     vcidata >> tmp.Quanta; //Max number of quanta
@@ -197,7 +197,6 @@ void ReadCIInput(MatrixXd& VCIHam, fstream& vcidata)
   {
     //Spectator modes
     HOFunc tmp;
-    tmp.Spect = 1;
     vcidata >> dummy; //Throw out ID number
     vcidata >> tmp.Freq; //Frequency
     tmp.Quanta = 1; //Only one state
@@ -230,12 +229,33 @@ void ReadCIInput(MatrixXd& VCIHam, fstream& vcidata)
       }
     }
   }
+  //Read anharmonic force constants
+  vcidata >> dummy; //Clear junk
+  vcidata >> Nfc; //Read number of anharmonic force constants
+  for (int i=0;i<Nfc;i++)
+  {
+    //Save force constant data
+    
+  }
   //Create data structures
   VCIHam = MatrixXd(Nmodes,Nmodes); //Create the Hamiltonian matrix
   VCIHam.setZero(); //Ensure that the Hamiltonian matrix is empty
   if (ProgSet)
   {
     //Create progression basis
+    WaveFunction GroundState;
+    GroundState.M = BasisCount.size();
+    for (unsigned int k=0;k<BasisCount.size();k++)
+    {
+      //Copy general information
+      HOFunc tmp;
+      tmp.Freq = BasisCount[k].Freq;
+      tmp.ModeInt = BasisCount[k].ModeInt;
+      tmp.Quanta = 0;
+      //Save basis function component
+      GroundState.Modes.push_back(tmp);
+    }
+    BasisSet.push_back(GroundState); //Ground state reference
     for (unsigned int i=0;i<BasisCount.size();i++)
     {
       //Add 1D modes
@@ -247,7 +267,6 @@ void ReadCIInput(MatrixXd& VCIHam, fstream& vcidata)
         {
           //Copy general information
           HOFunc tmp;
-          tmp.Spect = 0;
           tmp.Freq = BasisCount[k].Freq;
           tmp.ModeInt = BasisCount[k].ModeInt;
           //Add quanta
@@ -266,13 +285,91 @@ void ReadCIInput(MatrixXd& VCIHam, fstream& vcidata)
       }
     }
     //Add combination bands
-    
+    for (unsigned int i=0;i<ProgModes.size();i++)
+    {
+      //Add 1D modes
+      for (int j=0;j<ProgQuanta;j++)
+      {
+        WaveFunction temp;
+        temp.M = BasisCount.size();
+        for (unsigned int k=0;k<BasisCount.size();k++)
+        {
+          //Copy general information
+          HOFunc tmp;
+          tmp.Freq = BasisCount[k].Freq;
+          tmp.ModeInt = BasisCount[k].ModeInt;
+          //Add quanta
+          if (i == progmode)
+          {
+            tmp.Quanta = (j+1);
+          }
+          else if (i == ProgModes[i])
+          {
+            tmp.Quanta = 1;
+          }
+          else
+          {
+            tmp.Quanta = 0;
+          }
+          //Save basis function component
+          temp.Modes.push_back(tmp);
+        }
+      BasisSet.push_back(temp);
+      }
+    }
   }
   else
   {
     //Create product basis
     
   }
+  //Correct array lengths
+  #pragma omp parallel for
+  for (unsigned int i=0;i<BasisSet.size();i++)
+  {
+    //Update counter
+    BasisSet[i].M = BasisSet[i].Modes.size();
+  }
+  #pragma omp barrier
+  //Print settings
+  cout << "General settings:" << '\n';
+  cout << "  Threads: " << Ncpus << '\n';
+  cout << '\n';
+  cout << "Spectrum settings:" << '\n';
+  cout << "  Active modes: " << BasisCount.size() << '\n';
+  cout << "  Spectator modes: " << SpectModes.size() << '\n';
+  cout.precision(3); //Truncate numbers
+  cout << "  Line width: " << LorentzWid << '\n';
+  cout << "  Resolution: " << DeltaFreq << '\n';
+  cout.precision(12); //Replace settings
+  cout << '\n';
+  cout << "VCI basis set:" << '\n';
+  cout << "  Basis type: ";
+  if (ProgSet)
+  {
+    cout << "Progression" << '\n';
+    cout << "    Mode ID: " << progmode << '\n';
+    cout.precision(2); //Truncate frequency
+    cout << "    Frequency: " << BasisCount[progmode].Freq << '\n';
+    cout.precision(12); //Replace settings
+    cout << "    Quanta: " << ProgQuanta << '\n';
+  }
+  else
+  {
+    cout << "Product" << '\n';
+  }
+  cout << "  Basis functions: " << BasisSet.size() << '\n';
+  cout << "  Force constants: ";
+  if (Nfc == 0)
+  {
+    cout << "N/A" << '\n';
+  }
+  else
+  {
+    cout << Nfc << '\n';
+  }
+  cout << '\n';
+  cout.flush();
   return;
 };
 

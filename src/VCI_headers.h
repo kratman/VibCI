@@ -63,7 +63,6 @@ class HOFunc
 {
   //Class for harmonic oscillator basis functions
   public:
-    bool Spect; //Spectator mode
     double Freq; //Frequency
     int Quanta; //Number of quanta in the mode
     double ModeInt; //Intensity

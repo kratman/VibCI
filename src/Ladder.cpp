@@ -38,19 +38,34 @@ inline void AnnihilationLO(double& ci, int& ni)
 void ZerothHam(MatrixXd& H)
 {
   //Calculate the harmonic Hamiltonian matrix elements
+  double Espec = 0; //Spectator mode ZPE energy
+  //Spectator modes
+  #pragma omp parallel for reduction(+:Espec)
+  for (unsigned int i=0;i<SpectModes.size();i++)
+  {
+    //ZPE for mode i
+    double Ei = 0.5*SpectModes[i].Freq;
+    //Update energy
+    Espec += Ei;
+  }
+  #pragma omp barrier
+  //Harmonic matrix elements
   #pragma omp parallel for
   for (unsigned int i=0;i<BasisSet.size();i++)
   {
     //Loop over all modes
+    double Ei = Espec; //Hii matrix element
     for (int j=0;j<BasisSet[i].M;j++)
     {
       //Calculate partial energies
       double Ej = 0.5;
       Ej += BasisSet[i].Modes[j].Quanta;
       Ej *= BasisSet[i].Modes[j].Freq;
-      //Update Hamiltonian
-      H(i,i) += Ej;
+      //Update matrix element
+      Ei += Ej;
     }
+    //Update Hamiltonian
+    H(i,i) += Ei;
   }
   #pragma omp barrier
   return;
@@ -121,7 +136,30 @@ void PrintSpectrum(VectorXd& Freqs, fstream& outfile)
   while (fn <= Fmax)
   {
     double In = 0; //Intensity at point n
-    
+    //Spectator modes
+    #pragma omp parallel for reduction(+:In)
+    for (unsigned int i=0;i<SpectModes.size();i++)
+    {
+      double I;
+      //All spectators are fundamentals
+      I = SpectModes[i].ModeInt;
+      I *= LBroaden(fn,SpectModes[i].Freq,LorentzWid);
+      //Sum intensities
+      In += I;
+    }
+    #pragma omp barrier
+    //VCI modes
+    #pragma omp parallel for reduction(+:In)
+    for (unsigned int i=0;i<BasisSet.size();i++)
+    {
+      //Add fundamental intensities
+      if (Freqs(i) > 0)
+      {
+        //Add all modes besides the VCI ground state
+        
+      }
+    }
+    #pragma omp barrier
     //Write data
     outfile << fn << " " << In << '\n';
     //Go to point n+1

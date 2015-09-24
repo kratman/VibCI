@@ -19,6 +19,7 @@ int main(int argc, char* argv[])
   //Misc. initialization
   StartTime = (unsigned)time(0); //Time the program starts
   cout.precision(12);
+  cout << fixed;
   //End of section
 
   //Initialize local variables
@@ -26,6 +27,7 @@ int main(int argc, char* argv[])
   MatrixXd VCIHam; //Full Hamiltonian matrix
   MatrixXd CIVec; //CI eigenvectors (wavefunction)
   VectorXd CIFreq; //CI eigenvalues (frequencies
+  double Ezpe = 0; //CI zero-point energy
   double RunTime; //Run time for the calculations
   string TimeUnits; //Seconds, minutes, or hours for RunTime
   //End of section
@@ -47,19 +49,37 @@ int main(int argc, char* argv[])
 
   //Calculate spectrum
   cout << "Constructing the CI Hamiltonian...";
-  cout << '\n' << '\n';
+  cout << '\n';
   cout.flush(); //Print progress
+  cout << "  Zeroth-order Hamiltionian";
   ZerothHam(VCIHam); //Harmonic terms
+  cout << "; Done." << '\n';
+  cout << "  Adding anharmonic elements";
   AnharmHam(VCIHam); //Anharmonic terms
+  cout << "; Done." << '\n';
+  cout << '\n';
   cout << "Diagonalizing the Hamiltonian...";
   cout << '\n' << '\n';
   cout.flush(); //Print progress
   VCIDiagonalize(VCIHam,CIVec,CIFreq); //Diagonalization wrapper
   //End of section
 
+  //Calculate and remove ZPE
+  VectorXd UnitVec(BasisSet.size());
+  UnitVec.setOnes(); //Create a unit vector
+  Ezpe = CIFreq.minCoeff(); //Save ZPE
+  CIFreq -= (Ezpe*UnitVec); //Remove ZPE
+  //End of section
+
   //Print results
   cout << "Printing the spectrum...";
   cout << '\n' << '\n';
+  cout << "Results:" << '\n';
+  cout << "  Zero-point energy: ";
+  cout.precision(2); //Truncate energy
+  cout << Ezpe << " (1/cm)"; //Print energy
+  cout.precision(12); //Replace settings
+  cout << '\n';
   cout.flush(); //Print progress
   PrintSpectrum(CIFreq,spectfile); //Convert the frequencies to a spectrum
   EndTime = (unsigned)time(0); //Time the calculation stops
@@ -81,7 +101,9 @@ int main(int argc, char* argv[])
     //Stick with seconds
     TimeUnits = "seconds";
   }
-  cout << "Run time: " << RunTime;
+  cout.precision(2); //Truncate time
+  cout << "  Run time: " << RunTime;
+  cout.precision(12); //Replace settings
   cout << " " << TimeUnits;
   cout << '\n' << '\n';
   cout << "Done.";
