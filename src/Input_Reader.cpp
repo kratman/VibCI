@@ -151,10 +151,32 @@ void ReadCIInput(MatrixXd& VCIHam, fstream& vcidata)
   string dummy; //Generic sting
   //Count basis functions and read modes
   bool ProgSet = 0; //Make the basis a progression in a mode
+  int progmode = -1; //Mode for the progression
+  int ProgQuanta = 0; //Number of quanta for the progression
+  vector<int> ProgModes; //Modes with progressions
   int Nspect = 0; //Number of spectator modes
   int Nmodes = 0; //Number of different modes
   vector<HOFunc> BasisCount; //Temp. storage of modes
-  //Active modes
+  //Read basis set type
+  vcidata >> dummy >> dummy;
+  if ((dummy == "Progression") or (dummy == "progression"))
+  {
+    ProgSet = 1;
+    vcidata >> dummy; //Clear junk
+    vcidata >> progmode;
+    vcidata >> ProgQuanta;
+    int modect; //Number of modes with progressions
+    vcidata >> dummy >> modect;
+    for (int i=0;i<modect;i++)
+    {
+      int tmp;
+      vcidata >> tmp;
+      ProgModes.push_back(tmp);
+    }
+  }
+  //Read broadening settings
+  vcidata >> dummy >> LorentzWid >> DeltaFreq;
+  //Read active modes
   vcidata >> dummy; //Clear junk
   vcidata >> Nmodes; //Read modes
   for (int i=0;i<Nmodes;i++)
@@ -168,7 +190,7 @@ void ReadCIInput(MatrixXd& VCIHam, fstream& vcidata)
     vcidata >> tmp.ModeInt; //Intensity
     BasisCount.push_back(tmp);
   }
-  //Spectators
+  //Read spectator modes
   vcidata >> dummy; //Clear junk
   vcidata >> Nspect; //Read spectator modes
   for (int i=0;i<Nspect;i++)
@@ -186,7 +208,12 @@ void ReadCIInput(MatrixXd& VCIHam, fstream& vcidata)
   if (ProgSet)
   {
     //Simple progression basis
-    
+    Nmodes = 1;
+    for (unsigned int i=0;i<BasisCount.size();i++)
+    {
+      Nmodes += BasisCount[i].Quanta;
+    }
+    Nmodes += ProgQuanta*ProgModes.size();
   }
   else
   {
