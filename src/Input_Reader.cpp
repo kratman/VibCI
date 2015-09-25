@@ -235,7 +235,16 @@ void ReadCIInput(MatrixXd& VCIHam, fstream& vcidata)
   for (int i=0;i<Nfc;i++)
   {
     //Save force constant data
-    
+    FConst tmp;
+    int fcpower = 0;
+    for (int j=0;j<fcpower;j++)
+    {
+      int modej = 0;
+      vcidata >> modej;
+      tmp.fcpow.push_back(modej);
+    }
+    vcidata >> tmp.fc;
+    AnharmFC.push_back(tmp);
   }
   //Create data structures
   VCIHam = MatrixXd(Nmodes,Nmodes); //Create the Hamiltonian matrix
@@ -321,7 +330,40 @@ void ReadCIInput(MatrixXd& VCIHam, fstream& vcidata)
   else
   {
     //Create product basis
-    
+    for (int i=0;i<(BasisCount[0].Quanta+1);i++)
+    {
+      WaveFunction temp;
+      HOFunc tmp;
+      tmp.Freq = BasisCount[0].Freq;
+      tmp.ModeInt = BasisCount[0].ModeInt;
+      tmp.Quanta = i;
+      temp.Modes.push_back(tmp);
+      BasisSet.push_back(temp);
+    }
+    for (unsigned int i=1;i<BasisCount.size();i++)
+    {
+      vector<WaveFunction> NewBasis;
+      for (int j=0;j<(BasisCount[i].Quanta+1);j++)
+      {
+        vector<WaveFunction> BasisCopy = BasisSet;
+        for (unsigned int k=0;k<BasisSet.size();k++)
+        {
+          HOFunc tmp;
+          //Copy data
+          tmp.Freq = BasisCount[i].Freq;
+          tmp.ModeInt = BasisCount[i].ModeInt;
+          //Set quanta
+          tmp.Quanta = j;
+          //Add to arrays
+          BasisCopy[k].Modes.push_back(tmp);
+        }
+        for (unsigned int n=0;n<BasisCopy.size();n++)
+        {
+          NewBasis.push_back(BasisCopy[n]);
+        }
+      }
+      BasisSet = NewBasis;
+    }
   }
   //Correct array lengths
   #pragma omp parallel for

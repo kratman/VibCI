@@ -76,12 +76,22 @@ class WaveFunction
     vector<HOFunc> Modes; //Functions
 };
 
+class FConst
+{
+  //Class for anharmonic force constants
+  public:
+    //Note: fc should include the permutation term
+    double fc; //Value of the force constant
+    vector<int> fcpow; //Modes and powers for the force constant
+};
+
 //Global variables
 int Ncpus = 0; //Number of CPUs for the calculations
 double LorentzWid = 1; //Width of the peaks in the final spectrum
 double DeltaFreq = 0.01; //Spectrum resolution
 vector<WaveFunction> BasisSet; //Full basis set
-vector<HOFunc> SpectModes;
+vector<HOFunc> SpectModes; //List of spectator modes
+vector<FConst> AnharmFC; //List of force constants
 
 //Function declarations (alphabetical)
 void AnharmHam(MatrixXd&);
