@@ -237,13 +237,14 @@ void ReadCIInput(MatrixXd& VCIHam, fstream& vcidata)
     //Save force constant data
     FConst tmp;
     int fcpower = 0;
+    vcidata >> fcpower;
     for (int j=0;j<fcpower;j++)
     {
       int modej = 0;
       vcidata >> modej;
       tmp.fcpow.push_back(modej);
     }
-    vcidata >> tmp.fc;
+    vcidata >> tmp.fc; //Read force constant value
     AnharmFC.push_back(tmp);
   }
   //Create data structures

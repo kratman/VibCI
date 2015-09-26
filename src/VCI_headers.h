@@ -96,6 +96,8 @@ vector<FConst> AnharmFC; //List of force constants
 //Function declarations (alphabetical)
 void AnharmHam(MatrixXd&);
 
+double AnharmPot(int,int,FConst&);
+
 void AnnihilationLO(double&,int&);
 
 bool CheckFile(const string&);
@@ -115,6 +117,8 @@ void PrintSpectrum(VectorXd&,fstream&);
 void ReadCIArgs(int,char*,fstream&,fstream&);
 
 void ReadCIInput(MatrixXd&,fstream&);
+
+bool ScreenState(int,int,FConst&);
 
 void ZerothHam(MatrixXd&);
 

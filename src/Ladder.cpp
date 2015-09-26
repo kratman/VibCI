@@ -34,6 +34,110 @@ inline void AnnihilationLO(double& ci, int& ni)
   return;
 };
 
+double AnharmPot(int n, int m, FConst& fc)
+{
+  //Calculate anharmonic matrix elements for <m|H|n>
+  double Vij = 0;
+  vector<vector<int> > NewStates;
+  vector<vector<double> > StateCoeffs;
+  //Sort force constants
+  vector<int> ShortModes; //A short list of the key modes
+  vector<int> ModePowers; //Powers in each mode
+  for (unsigned int i=0;i<fc.fcpow.size();i++)
+  {
+    //Sort the modes and powers
+    if (i == 0)
+    {
+      ShortModes.push_back(fc.fcpow[0]);
+      ModePowers.push_back(1);
+      vector<int> tmp1;
+      vector<double> tmp2;
+      NewStates.push_back(tmp1);
+      StateCoeffs.push_back(tmp2);
+    }
+    else
+    {
+      bool foundmode = 0;
+      for (unsigned int j=0;j<ShortModes.size();j++)
+      {
+        if (fc.fcpow[i] == ShortModes[j])
+        {
+          ModePowers[j] += 1;
+          foundmode = 1;
+        }
+      }
+      if (!foundmode)
+      {
+        ShortModes.push_back(fc.fcpow[i]);
+        ModePowers.push_back(1);
+        vector<int> tmp1;
+        vector<double> tmp2;
+        NewStates.push_back(tmp1);
+        StateCoeffs.push_back(tmp2);
+      }
+    }
+  }
+  //Create new states
+  for (unsigned int i=0;i<ShortModes.size();i++)
+  {
+    //Apply operators
+    NewStates[i].push_back(BasisSet[n].Modes[ShortModes[i]].Quanta);
+    StateCoeffs[i].push_back(1.0);
+    for (int j=0;j<ModePowers[i];j++)
+    {
+      //Create new state for mode i
+      vector<int> stateupdate;
+      vector<double> coeffupdate;
+      for (unsigned int k=0;k<NewStates[i].size();k++)
+      {
+        int quant;
+        double coeff;
+        //Creation
+        quant = NewStates[i][k];
+        coeff = StateCoeffs[i][k];
+        CreationLO(coeff,quant);
+        coeff *= 1/sqrt(BasisSet[n].Modes[ShortModes[i]].Freq);
+        stateupdate.push_back(quant);
+        coeffupdate.push_back(coeff);
+        //Annihilation
+        quant = NewStates[i][k];
+        coeff = StateCoeffs[i][k];
+        AnnihilationLO(coeff,quant);
+        coeff *= 1/sqrt(BasisSet[n].Modes[ShortModes[i]].Freq);
+        if (quant >= 0)
+        {
+          stateupdate.push_back(quant);
+          coeffupdate.push_back(coeff);
+        }
+      }
+      //Save states
+      NewStates[i] = stateupdate;
+      StateCoeffs[i] = coeffupdate;
+    }
+  }
+  //Sum energies
+  vector<double> CoeffSum;
+  for (unsigned int i=0;i<ShortModes.size();i++)
+  {
+    CoeffSum.push_back(0);
+    for (unsigned int j=0;j<NewStates[i].size();j++)
+    {
+      int quantn = NewStates[i][k];
+      int quantm = BasisSet[m].Modes[ShortModes[i]].Quanta;
+      if (quantn == quantm)
+      {
+        CoeffSum[i] += StateCoeffs[i][k];
+      }
+    }
+  }
+  Vij = 1;
+  for (unsigned int i=0;i<CoeffSum.size();i++)
+  {
+    Vij *= CoeffSum[i];
+  }
+  return Vij;
+};
+
 //Hamiltonian operators
 void ZerothHam(MatrixXd& H)
 {
@@ -74,7 +178,22 @@ void ZerothHam(MatrixXd& H)
 void AnharmHam(MatrixXd& H)
 {
   //Add anharmonic terms to the Hamiltonian
-  
+  #pragma omp parallel for
+  for (int i=0;i<BasisSet[i].M;i++)
+  {
+    for (int j=0;j<BasisSet[j].M;j++)
+    {
+      double Eij = 0;
+      for (unsigned int k=0;k<AnharmFC.size();k++)
+      if (ScreenState(i,j,AnharmFC[k]))
+      {
+        //Add anharmonic matrix elements
+        Eij += AnharmPot(i,j,AnharmFC[k]);
+      }
+      H(i,j) += Eij;
+    }
+  }
+  #pragma omp barrier
   return;
 };
 
@@ -82,9 +201,9 @@ inline void VCIDiagonalize(MatrixXd& H, MatrixXd& Psi, VectorXd& E)
 {
   //Wrapper for the Eigen diagonalization
   EigenSolver<MatrixXd> SE; //Schrodinger equation
-  SE.compute(H);
-  E = SE.eigenvalues().real();
-  Psi = SE.eigenvectors().real();
+  SE.compute(H); //Diagonalize the matrix
+  E = SE.eigenvalues().real(); //Extract frequencies
+  Psi = SE.eigenvectors().real(); //Extract CI vectors
   return;
 };
 
@@ -124,6 +243,82 @@ int IsFund(WaveFunction& bfunc)
     #pragma omp barrier
   }
   return fund;
+};
+
+bool ScreenState(int n, int m, FConst& fc)
+{
+  //Function for ignoring states that have no overlap
+  bool keepstate = 1; //Assume the state is good
+  //Sort force constants
+  vector<int> ShortModes; //A short list of the key modes
+  vector<int> ModePowers; //Powers in each mode
+  for (unsigned int i=0;i<fc.fcpow.size();i++)
+  {
+    //Sort the modes and powers
+    if (i == 0)
+    {
+      ShortModes.push_back(fc.fcpow[0]);
+      ModePowers.push_back(1);
+    }
+    else
+    {
+      bool foundmode = 0;
+      for (unsigned int j=0;j<ShortModes.size();j++)
+      {
+        if (fc.fcpow[i] == ShortModes[j])
+        {
+          ModePowers[j] += 1;
+          foundmode = 1;
+        }
+      }
+      if (!foundmode)
+      {
+        ShortModes.push_back(fc.fcpow[i]);
+        ModePowers.push_back(1);
+      }
+    }
+  }
+  //Check based on force constant powers
+  for (unsigned int i=0;i<ShortModes.size();i++)
+  {
+    int qdiff = 0; //Number of quanta between states
+    qdiff += BasisSet[n].Modes[ShortModes[i]].Quanta;
+    qdiff -= BasisSet[m].Modes[ShortModes[i]].Quanta;
+    qdiff = abs(qdiff);
+    if (qdiff > ModePowers[i])
+    {
+      //Impossible for the states to overlap
+      keepstate = 0;
+    }
+  }
+  if (!keepstate)
+  {
+    //Skip the rest of the checks
+    return keepstate;
+  }
+  //Check overlap of all other modes
+  for (int i=0;i<BasisSet[n].M;i++)
+  {
+    bool cont = 1; //Continue the check
+    for (int j=0;j<((int)ShortModes.size());j++)
+    {
+      if (ShortModes[j] == i)
+      {
+        //Ignore this mode since it is in the FC
+        cont = 0;
+      }
+    }
+    if (cont)
+    {
+      if (BasisSet[n].Modes[i].Quanta != BasisSet[m].Modes[i].Quanta)
+      {
+        //Remove state due to zero overlap in mode i
+        keepstate = 0;
+      }
+    }
+  }
+  //Return decision
+  return keepstate;
 };
 
 void PrintSpectrum(VectorXd& Freqs, fstream& outfile)
