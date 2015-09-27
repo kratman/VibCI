@@ -37,7 +37,7 @@ inline void AnnihilationLO(double& ci, int& ni)
 double AnharmPot(int n, int m, FConst& fc)
 {
   //Calculate anharmonic matrix elements for <m|H|n>
-  double Vij = 0;
+  double Vnm = 0;
   vector<vector<int> > NewStates;
   vector<vector<double> > StateCoeffs;
   //Sort force constants
@@ -48,7 +48,7 @@ double AnharmPot(int n, int m, FConst& fc)
     //Sort the modes and powers
     if (i == 0)
     {
-      ShortModes.push_back(fc.fcpow[0]);
+      ShortModes.push_back(fc.fcpow[i]);
       ModePowers.push_back(1);
       vector<int> tmp1;
       vector<double> tmp2;
@@ -96,14 +96,12 @@ double AnharmPot(int n, int m, FConst& fc)
         quant = NewStates[i][k];
         coeff = StateCoeffs[i][k];
         CreationLO(coeff,quant);
-        coeff *= 1/sqrt(BasisSet[n].Modes[ShortModes[i]].Freq);
         stateupdate.push_back(quant);
         coeffupdate.push_back(coeff);
         //Annihilation
         quant = NewStates[i][k];
         coeff = StateCoeffs[i][k];
         AnnihilationLO(coeff,quant);
-        coeff *= 1/sqrt(BasisSet[n].Modes[ShortModes[i]].Freq);
         if (quant >= 0)
         {
           stateupdate.push_back(quant);
@@ -119,23 +117,23 @@ double AnharmPot(int n, int m, FConst& fc)
   vector<double> CoeffSum;
   for (unsigned int i=0;i<ShortModes.size();i++)
   {
-    CoeffSum.push_back(0);
+    CoeffSum.push_back(0.0);
     for (unsigned int j=0;j<NewStates[i].size();j++)
     {
-      int quantn = NewStates[i][k];
+      int quantn = NewStates[i][j];
       int quantm = BasisSet[m].Modes[ShortModes[i]].Quanta;
       if (quantn == quantm)
       {
-        CoeffSum[i] += StateCoeffs[i][k];
+        CoeffSum[i] += StateCoeffs[i][j];
       }
     }
   }
-  Vij = 1;
+  Vnm = 1;
   for (unsigned int i=0;i<CoeffSum.size();i++)
   {
-    Vij *= CoeffSum[i];
+    Vnm *= CoeffSum[i];
   }
-  return Vij;
+  return Vnm;
 };
 
 //Hamiltonian operators
@@ -178,19 +176,23 @@ void ZerothHam(MatrixXd& H)
 void AnharmHam(MatrixXd& H)
 {
   //Add anharmonic terms to the Hamiltonian
+  cout << '\n';
+  cout << "Anharmonic interactions for states:";
+  cout << '\n';
   #pragma omp parallel for
   for (int i=0;i<BasisSet[i].M;i++)
   {
     for (int j=0;j<BasisSet[j].M;j++)
     {
-      double Eij = 0;
+      double Vij = 0;
       for (unsigned int k=0;k<AnharmFC.size();k++)
-      if (ScreenState(i,j,AnharmFC[k]))
-      {
-        //Add anharmonic matrix elements
-        Eij += AnharmPot(i,j,AnharmFC[k]);
-      }
-      H(i,j) += Eij;
+        if (ScreenState(i,j,AnharmFC[k]))
+        {
+          //Add anharmonic matrix elements
+          cout << i << " " << j << '\n';
+          Vij += AnharmPot(i,j,AnharmFC[k]);
+        }
+      H(i,j) += Vij;
     }
   }
   #pragma omp barrier
