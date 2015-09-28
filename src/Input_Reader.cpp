@@ -409,7 +409,7 @@ void ReadCIInput(MatrixXd& VCIHam, fstream& vcidata)
   }
   else
   {
-    cout << Nfc << '\n';
+    cout << AnharmFC.size() << '\n';
   }
   cout << '\n';
   cout.flush();

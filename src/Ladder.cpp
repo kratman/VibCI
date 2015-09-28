@@ -128,7 +128,7 @@ double AnharmPot(int n, int m, FConst& fc)
       }
     }
   }
-  Vnm = 1;
+  Vnm = fc.fc; //Scale by the force constant
   for (unsigned int i=0;i<CoeffSum.size();i++)
   {
     Vnm *= CoeffSum[i];
@@ -176,9 +176,6 @@ void ZerothHam(MatrixXd& H)
 void AnharmHam(MatrixXd& H)
 {
   //Add anharmonic terms to the Hamiltonian
-  cout << '\n';
-  cout << "Anharmonic interactions for states:";
-  cout << '\n';
   #pragma omp parallel for
   for (int i=0;i<BasisSet[i].M;i++)
   {
@@ -186,12 +183,13 @@ void AnharmHam(MatrixXd& H)
     {
       double Vij = 0;
       for (unsigned int k=0;k<AnharmFC.size();k++)
+      {
         if (ScreenState(i,j,AnharmFC[k]))
         {
           //Add anharmonic matrix elements
-          cout << i << " " << j << '\n';
           Vij += AnharmPot(i,j,AnharmFC[k]);
         }
+      }
       H(i,j) += Vij;
     }
   }
@@ -259,11 +257,13 @@ bool ScreenState(int n, int m, FConst& fc)
     //Sort the modes and powers
     if (i == 0)
     {
-      ShortModes.push_back(fc.fcpow[0]);
+      //Initialize the vector
+      ShortModes.push_back(fc.fcpow[i]);
       ModePowers.push_back(1);
     }
     else
     {
+      //Update powers
       bool foundmode = 0;
       for (unsigned int j=0;j<ShortModes.size();j++)
       {
@@ -296,13 +296,13 @@ bool ScreenState(int n, int m, FConst& fc)
   if (!keepstate)
   {
     //Skip the rest of the checks
-    return keepstate;
+    return 0;
   }
   //Check overlap of all other modes
   for (int i=0;i<BasisSet[n].M;i++)
   {
     bool cont = 1; //Continue the check
-    for (int j=0;j<((int)ShortModes.size());j++)
+    for (unsigned int j=0;j<ShortModes.size();j++)
     {
       if (ShortModes[j] == i)
       {
