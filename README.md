@@ -12,7 +12,7 @@ LOVCI: Ladder Operator Vibrational Configuration Interaction
 <h4>
 NOTICE: This repository is a work in progress. Currently only the harmonic
 calculations are functioning properly.
--</h4>
+</h4>
 
 ### Introduction
 
