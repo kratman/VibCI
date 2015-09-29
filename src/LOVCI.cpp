@@ -47,6 +47,10 @@ int main(int argc, char* argv[])
   ReadCIInput(VCIHam,vcidata); //Read input files
   //End of section
 
+  //Adjust force constants
+  ScaleFC();
+  //End of section
+
   //Calculate spectrum
   cout << "Constructing the CI Hamiltonian...";
   cout << '\n';
@@ -108,6 +112,11 @@ int main(int argc, char* argv[])
   cout << '\n' << '\n';
   cout << "Done.";
   cout << '\n' << '\n';
+  //End of section
+
+  //Empty memory and delete junk files
+  vcidata.close();
+  spectfile.close();
   //End of section
 
   //Quit

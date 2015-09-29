@@ -177,7 +177,23 @@ void ReadCIInput(MatrixXd& VCIHam, fstream& vcidata)
   }
   //Read broadening settings
   vcidata >> dummy; //Junk
+  vcidata >> dummy; //Type of broadening
+  if ((dummy == "Gaussian") or (dummy == "gaussian"))
+  {
+    //Gaussian broadening
+    GauBroad = 1;
+  }
+  else
+  {
+    //Lorentzian broadening
+    GauBroad = 0;
+  }
   vcidata >> LorentzWid; //Line width
+  if (GauBroad)
+  {
+    //Convert to a Gaussian width
+    LorentzWid /= (2*sqrt(2*log(2)));
+  }
   vcidata >> DeltaFreq; //Frequency step size
   vcidata >> FreqCut; //Cutoff for printing the spectrum
   //Read active modes
@@ -312,11 +328,11 @@ void ReadCIInput(MatrixXd& VCIHam, fstream& vcidata)
           tmp.Freq = BasisCount[k].Freq;
           tmp.ModeInt = BasisCount[k].ModeInt;
           //Add quanta
-          if (i == progmode)
+          if (k == progmode)
           {
             tmp.Quanta = (j+1);
           }
-          else if (i == ProgModes[i])
+          else if (k == ProgModes[i])
           {
             tmp.Quanta = 1;
           }

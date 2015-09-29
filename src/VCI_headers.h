@@ -46,6 +46,7 @@ using namespace std;
 
 //Global exact constants
 const double pi = 4*atan(1); //Pi
+const double rt2pi = sqrt(2*pi); //Needed for Gaussian broadening
 
 //Global measured constants (NIST, CODATA 2010)
 const double cs = 2.99792458e-10; //Speed of light (cm)
@@ -86,6 +87,7 @@ class FConst
 };
 
 //Global variables
+bool GauBroad = 0; //Use Gaussian broadening instead of Lorentzian
 int Ncpus = 0; //Number of CPUs for the calculations
 double LorentzWid = 1; //Width of the peaks in the final spectrum
 double DeltaFreq = 0.01; //Spectrum resolution
@@ -105,9 +107,11 @@ bool CheckFile(const string&);
 
 void CreationLO(double&,int&);
 
-void VCIDiagonalize(MatrixXd&,MatrixXd&,VectorXd&);
+double Fact(int);
 
 int FindMaxThreads();
+
+double GBroaden(double,double,double);
 
 double LBroaden(double,double,double);
 
@@ -119,7 +123,11 @@ void ReadCIArgs(int,char*,fstream&,fstream&);
 
 void ReadCIInput(MatrixXd&,fstream&);
 
+void ScaleFC();
+
 bool ScreenState(int,int,FConst&);
+
+void VCIDiagonalize(MatrixXd&,MatrixXd&,VectorXd&);
 
 void ZerothHam(MatrixXd&);
 

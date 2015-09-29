@@ -128,10 +128,6 @@ double AnharmPot(int n, int m, FConst& fc)
       }
     }
   }
-  //Add sqrt(2) terms
-  Vnm = ((double)fc.fcpow.size());
-  Vnm = sqrt(2*Vnm);
-  Vnm = 1/Vnm;
   //Scale by the force constant
   Vnm = fc.fc;
   //Combine coeffcients
@@ -156,6 +152,7 @@ void ZerothHam(MatrixXd& H)
     Espec += Ei;
   }
   //Harmonic matrix elements
+  #pragma omp parallel for
   for (unsigned int i=0;i<BasisSet.size();i++)
   {
     //Loop over all modes
@@ -172,12 +169,14 @@ void ZerothHam(MatrixXd& H)
     //Update Hamiltonian
     H(i,i) += Ei;
   }
+  #pragma omp barrier
   return;
 };
 
 void AnharmHam(MatrixXd& H)
 {
   //Add anharmonic terms to the Hamiltonian
+  #pragma omp parallel for
   for (unsigned int i=0;i<BasisSet.size();i++)
   {
     for (unsigned int j=0;j<BasisSet.size();j++)
@@ -194,9 +193,11 @@ void AnharmHam(MatrixXd& H)
       H(i,j) += Vij;
     }
   }
+  #pragma omp barrier
   return;
 };
 
+//Utility functions
 inline void VCIDiagonalize(MatrixXd& H, MatrixXd& Psi, VectorXd& E)
 {
   //Wrapper for the Eigen diagonalization
@@ -209,7 +210,7 @@ inline void VCIDiagonalize(MatrixXd& H, MatrixXd& Psi, VectorXd& E)
 
 inline double LBroaden(double fi, double f, double wid)
 {
-  //Function to calculate the unnormalized Lorentz width
+  //Function to calculate the Lorentz width
   double lint; //Lorentz intensity
   lint = (fi-f);
   lint *= lint;
@@ -217,6 +218,19 @@ inline double LBroaden(double fi, double f, double wid)
   lint = wid/(pi*lint);
   //Return final intensity
   return lint;
+};
+
+inline double GBroaden(double fi, double f, double wid)
+{
+  //Function to calculate the Gaussian width
+  double gint; //Lorentz intensity
+  gint = (fi-f);
+  gint *= gint;
+  gint /= (2*wid*wid);
+  gint = exp(-1*gint);
+  gint /= (wid*rt2pi);
+  //Return final intensity
+  return gint;
 };
 
 int IsFund(WaveFunction& bfunc)
@@ -330,20 +344,36 @@ void PrintSpectrum(VectorXd& Freqs, MatrixXd& Psi, fstream& outfile)
     Fmax = FreqCut;
   }
   double fn = Fmin; //Current frequency at point n
+  //Look for threading errors
+  int SpectThreads = Ncpus;
+  if (SpectModes.size() <= 1)
+  {
+    //Run serial
+    SpectThreads = 1;
+  }
   //All intensity derives from the fundamental transitions
   while (fn <= Fmax)
   {
     double In = 0; //Intensity at point n
     //Spectator modes
+    #pragma omp parallel for reduction(+:In) num_threads(SpectThreads)
     for (unsigned int i=0;i<SpectModes.size();i++)
     {
       double I;
       //All spectators are fundamentals
       I = SpectModes[i].ModeInt;
-      I *= LBroaden(fn,SpectModes[i].Freq,LorentzWid);
+      if (GauBroad)
+      {
+        I *= GBroaden(fn,SpectModes[i].Freq,LorentzWid);
+      }
+      else
+      {
+        I *= LBroaden(fn,SpectModes[i].Freq,LorentzWid);
+      }
       //Sum intensities
       In += I;
     }
+    #pragma omp barrier
     //VCI modes
     for (unsigned int i=0;i<BasisSet.size();i++)
     {
@@ -351,6 +381,7 @@ void PrintSpectrum(VectorXd& Freqs, MatrixXd& Psi, fstream& outfile)
       if (Freqs(i) > 0)
       {
         //Add all states besides the VCI ground state
+        #pragma omp parallel for reduction(+:In)
         for (unsigned int j=0;j<BasisSet.size();j++)
         {
           //Loop over basis functions and find fundamentals
@@ -363,17 +394,80 @@ void PrintSpectrum(VectorXd& Freqs, MatrixXd& Psi, fstream& outfile)
             //Add weight
             I *= Psi(j,i)*Psi(j,i);
             //Broaden frequency
-            I *= LBroaden(fn,Freqs(i),LorentzWid);
+            if (GauBroad)
+            {
+              I *= GBroaden(fn,Freqs(i),LorentzWid);
+            }
+            else
+            {
+              I *= LBroaden(fn,Freqs(i),LorentzWid);
+            }
             //Sum intensities
             In += I;
           }
         }
+        #pragma omp barrier
       }
     }
     //Write data
     outfile << fn << " " << In << '\n';
     //Go to point n+1
     fn += DeltaFreq;
+  }
+  //Print and return
+  outfile.flush();
+  return;
+};
+
+void ScaleFC()
+{
+  //Adjust force constants for permutations and sqrt(2) terms
+  for (unsigned int i=0;i<AnharmFC.size();i++)
+  {
+    //Modify all force constants
+    double fcscale;
+    //Add sqrt(2) terms
+    fcscale = ((double)AnharmFC[i].fcpow.size());
+    fcscale = pow(2,fcscale);
+    fcscale = 1/sqrt(fcscale);
+    //Sort force constants
+    vector<int> ShortModes; //A short list of the key modes
+    vector<int> ModePowers; //Powers in each mode
+    for (unsigned int j=0;j<AnharmFC[i].fcpow.size();j++)
+    {
+      //Sort the modes and powers
+      if (j == 0)
+      {
+        //Initialize the vector
+        ShortModes.push_back(AnharmFC[i].fcpow[j]);
+        ModePowers.push_back(1);
+      }
+      else
+      {
+        //Update powers
+        bool foundmode = 0;
+        for (unsigned int k=0;k<ShortModes.size();k++)
+        {
+          if (AnharmFC[i].fcpow[j] == ShortModes[k])
+          {
+            ModePowers[k] += 1;
+            foundmode = 1;
+          }
+        }
+        if (!foundmode)
+        {
+          ShortModes.push_back(AnharmFC[i].fcpow[j]);
+          ModePowers.push_back(1);
+        }
+      }
+    }
+    //Calculate permutations
+    for (unsigned int j=0;j<ModePowers.size();j++)
+    {
+      fcscale /= Fact(ModePowers[j]);
+    }
+    //Scale FC
+    AnharmFC[i].fc *= fcscale;
   }
   return;
 };
