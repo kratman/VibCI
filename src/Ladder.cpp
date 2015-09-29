@@ -142,7 +142,6 @@ void ZerothHam(MatrixXd& H)
   //Calculate the harmonic Hamiltonian matrix elements
   double Espec = 0; //Spectator mode ZPE energy
   //Spectator modes
-  #pragma omp parallel for reduction(+:Espec)
   for (unsigned int i=0;i<SpectModes.size();i++)
   {
     //ZPE for mode i
@@ -150,9 +149,7 @@ void ZerothHam(MatrixXd& H)
     //Update energy
     Espec += Ei;
   }
-  #pragma omp barrier
   //Harmonic matrix elements
-  #pragma omp parallel for
   for (unsigned int i=0;i<BasisSet.size();i++)
   {
     //Loop over all modes
@@ -169,17 +166,15 @@ void ZerothHam(MatrixXd& H)
     //Update Hamiltonian
     H(i,i) += Ei;
   }
-  #pragma omp barrier
   return;
 };
 
 void AnharmHam(MatrixXd& H)
 {
   //Add anharmonic terms to the Hamiltonian
-  #pragma omp parallel for
-  for (int i=0;i<BasisSet[i].M;i++)
+  for (unsigned int i=0;i<BasisSet.size();i++)
   {
-    for (int j=0;j<BasisSet[j].M;j++)
+    for (unsigned int j=0;j<BasisSet.size();j++)
     {
       double Vij = 0;
       for (unsigned int k=0;k<AnharmFC.size();k++)
@@ -193,7 +188,6 @@ void AnharmHam(MatrixXd& H)
       H(i,j) += Vij;
     }
   }
-  #pragma omp barrier
   return;
 };
 
@@ -224,15 +218,12 @@ int IsFund(WaveFunction& bfunc)
   //Tests if a basis functionis a fundamental transition
   int fund = -1;
   int sum = 0;
-  #pragma omp parallel for reduction(+:sum)
   for (int i=0;i<bfunc.M;i++)
   {
     sum += bfunc.Modes[i].Quanta;
   }
-  #pragma omp barrier
   if (sum == 1)
   {
-    #pragma omp parallel for
     for (int i=0;i<bfunc.M;i++)
     {
       if (bfunc.Modes[i].Quanta == 1)
@@ -240,7 +231,6 @@ int IsFund(WaveFunction& bfunc)
         fund = i;
       }
     }
-    #pragma omp barrier
   }
   return fund;
 };
@@ -323,7 +313,7 @@ bool ScreenState(int n, int m, FConst& fc)
   return keepstate;
 };
 
-void PrintSpectrum(VectorXd& Freqs, fstream& outfile)
+void PrintSpectrum(VectorXd& Freqs, MatrixXd& Psi, fstream& outfile)
 {
   //Function to print the CI spectrum
   double Fmin = 0; //Start of the spectrum
@@ -334,7 +324,6 @@ void PrintSpectrum(VectorXd& Freqs, fstream& outfile)
   {
     double In = 0; //Intensity at point n
     //Spectator modes
-    #pragma omp parallel for reduction(+:In)
     for (unsigned int i=0;i<SpectModes.size();i++)
     {
       double I;
@@ -344,19 +333,28 @@ void PrintSpectrum(VectorXd& Freqs, fstream& outfile)
       //Sum intensities
       In += I;
     }
-    #pragma omp barrier
     //VCI modes
-    #pragma omp parallel for reduction(+:In)
     for (unsigned int i=0;i<BasisSet.size();i++)
     {
       //Add fundamental intensities
       if (Freqs(i) > 0)
       {
         //Add all modes besides the VCI ground state
-        
+        int FundID = IsFund(BasisSet[i]);
+        if (FundID >= 0)
+        {
+          double I;
+          //Scale by intensity
+          I = BasisSet[i].Modes[FundID].ModeInt;
+          //Add weight
+          I *= Psi(FundID,i)*Psi(FundID,i);
+          //Broaden frequency
+          I *= LBroaden(fn,Freqs(i),LorentzWid);
+          //Sum intensities
+          In += I;
+        }
       }
     }
-    #pragma omp barrier
     //Write data
     outfile << fn << " " << In << '\n';
     //Go to point n+1

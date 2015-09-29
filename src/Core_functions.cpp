@@ -57,9 +57,7 @@ int FindMaxThreads()
 {
   //Function to count the number of allowed threads
   int ct = 0; //Generic counter
-  #pragma omp parallel reduction(+:ct)
   ct += 1; //Add one for each thread
-  #pragma omp barrier
   //Return total count
   return ct;
 };

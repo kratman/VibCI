@@ -1,0 +1,5 @@
++Anharmonic potentials are not fully implemented.
++Documentation needs to be updated.
++Printing of the spectrum needs to be completed.
++The test suite needs to be written.
++More comments need to be added to the code.

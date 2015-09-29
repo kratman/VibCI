@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
   cout << "  Zeroth-order Hamiltionian";
   ZerothHam(VCIHam); //Harmonic terms
   cout << "; Done." << '\n';
-  cout << "  Adding anharmonic elements";
+  cout << "  Adding anharmonic potential";
   AnharmHam(VCIHam); //Anharmonic terms
   cout << "; Done." << '\n';
   cout << '\n';
@@ -81,7 +81,7 @@ int main(int argc, char* argv[])
   cout.precision(12); //Replace settings
   cout << '\n';
   cout.flush(); //Print progress
-  PrintSpectrum(CIFreq,spectfile); //Convert the frequencies to a spectrum
+  PrintSpectrum(CIFreq,CIVec,spectfile); //Convert the frequencies to a spectrum
   EndTime = (unsigned)time(0); //Time the calculation stops
   RunTime = (double)(EndTime-StartTime); //Total run time
   if (RunTime >= 3600)

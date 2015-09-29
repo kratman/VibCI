@@ -367,13 +367,11 @@ void ReadCIInput(MatrixXd& VCIHam, fstream& vcidata)
     }
   }
   //Correct array lengths
-  #pragma omp parallel for
   for (unsigned int i=0;i<BasisSet.size();i++)
   {
     //Update counter
     BasisSet[i].M = BasisSet[i].Modes.size();
   }
-  #pragma omp barrier
   //Print settings
   cout << "General settings:" << '\n';
   cout << "  Threads: " << Ncpus << '\n';

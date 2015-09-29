@@ -112,7 +112,7 @@ double LBroaden(double,double,double);
 
 void PrintFancyTitle();
 
-void PrintSpectrum(VectorXd&,fstream&);
+void PrintSpectrum(VectorXd&,MatrixXd&,fstream&);
 
 void ReadCIArgs(int,char*,fstream&,fstream&);
 
