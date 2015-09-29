@@ -176,7 +176,10 @@ void ReadCIInput(MatrixXd& VCIHam, fstream& vcidata)
     }
   }
   //Read broadening settings
-  vcidata >> dummy >> LorentzWid >> DeltaFreq;
+  vcidata >> dummy; //Junk
+  vcidata >> LorentzWid; //Line width
+  vcidata >> DeltaFreq; //Frequency step size
+  vcidata >> FreqCut; //Cutoff for printing the spectrum
   //Read active modes
   vcidata >> dummy; //Clear junk
   vcidata >> Nmodes; //Read modes

@@ -1,5 +1,5 @@
 Basis: Product
-Broadening: 10.0 0.05
+Broadening: 10.0 0.05 5000.0
 Modes: 1
  0 1000.0 5 1.0
 Spectator_modes: 0

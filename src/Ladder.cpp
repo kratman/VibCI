@@ -128,7 +128,13 @@ double AnharmPot(int n, int m, FConst& fc)
       }
     }
   }
-  Vnm = fc.fc; //Scale by the force constant
+  //Add sqrt(2) terms
+  Vnm = ((double)fc.fcpow.size());
+  Vnm = sqrt(2*Vnm);
+  Vnm = 1/Vnm;
+  //Scale by the force constant
+  Vnm = fc.fc;
+  //Combine coeffcients
   for (unsigned int i=0;i<CoeffSum.size();i++)
   {
     Vnm *= CoeffSum[i];
@@ -318,6 +324,11 @@ void PrintSpectrum(VectorXd& Freqs, MatrixXd& Psi, fstream& outfile)
   //Function to print the CI spectrum
   double Fmin = 0; //Start of the spectrum
   double Fmax = Freqs.maxCoeff()+(20*LorentzWid); //End of the spectrum
+  if (Fmax > FreqCut)
+  {
+    //Scale maximum frequency
+    Fmax = FreqCut;
+  }
   double fn = Fmin; //Current frequency at point n
   //All intensity derives from the fundamental transitions
   while (fn <= Fmax)
@@ -336,22 +347,26 @@ void PrintSpectrum(VectorXd& Freqs, MatrixXd& Psi, fstream& outfile)
     //VCI modes
     for (unsigned int i=0;i<BasisSet.size();i++)
     {
-      //Add fundamental intensities
+      //Loop over states
       if (Freqs(i) > 0)
       {
-        //Add all modes besides the VCI ground state
-        int FundID = IsFund(BasisSet[i]);
-        if (FundID >= 0)
+        //Add all states besides the VCI ground state
+        for (unsigned int j=0;j<BasisSet.size();j++)
         {
-          double I;
-          //Scale by intensity
-          I = BasisSet[i].Modes[FundID].ModeInt;
-          //Add weight
-          I *= Psi(FundID,i)*Psi(FundID,i);
-          //Broaden frequency
-          I *= LBroaden(fn,Freqs(i),LorentzWid);
-          //Sum intensities
-          In += I;
+          //Loop over basis functions and find fundamentals
+          int FundID = IsFund(BasisSet[j]);
+          if (FundID >= 0)
+          {
+            double I;
+            //Scale by intensity
+            I = BasisSet[j].Modes[FundID].ModeInt;
+            //Add weight
+            I *= Psi(j,i)*Psi(j,i);
+            //Broaden frequency
+            I *= LBroaden(fn,Freqs(i),LorentzWid);
+            //Sum intensities
+            In += I;
+          }
         }
       }
     }

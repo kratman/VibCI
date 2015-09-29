@@ -89,6 +89,7 @@ class FConst
 int Ncpus = 0; //Number of CPUs for the calculations
 double LorentzWid = 1; //Width of the peaks in the final spectrum
 double DeltaFreq = 0.01; //Spectrum resolution
+double FreqCut = 5000; //Cutoff for the spectrum
 vector<WaveFunction> BasisSet; //Full basis set
 vector<HOFunc> SpectModes; //List of spectator modes
 vector<FConst> AnharmFC; //List of force constants
