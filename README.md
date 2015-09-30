@@ -15,10 +15,9 @@ LOVCI is a simple program to calculate anharmonic vibrational spectra.
 
 ### Installation
 
-Currently, the binary and user's manual are not included in the repository.
-The Makefile can be used to generate both files. Since LOVCI is designed to
-be simple, only a small number of packages are required to compile the code.
-An approximate list of packages is given below.
+Currently, the binary is not included in the repository. The Makefile can be
+used to generate LOVCI executable. Only a small number of packages are
+required to compile the code. An approximate list of packages is given below.
 ```
 LOVCI binary: OpenMP, Eigen3
 ```
@@ -46,7 +45,7 @@ Eigen3 package.
 Default: -I/usr/include/eigen3/
 ```
 
-The Makefile can produce both the documentation and the binary.
+The Makefile can produce both the binary.
 ```
 user:$ make install
 ```
@@ -55,6 +54,13 @@ user:$ make install
 
 Only a single input file is required to run the LOVCI program. Example input
 can be found in the tests and doc directories.
+```
+user:$ lovci -n Ncpus -i input.inp -o spectrum.txt
+
+ -n  =>    Number of CPUs used for the calculations
+ -i  =>    File name for the LOVCI input
+ -o  =>    File name for the calculated vibrational spectrum
+```
 
 #### Direct product basis sets
 
@@ -159,9 +165,9 @@ Spectator_modes: 0
 Force_constants: 1
  3 0 0 0 250.0
 ```
-where w=1000.0 and y=250.0 cm^-1. This input would produce a 6x6 VCI
-Hamiltonain. The calculation includes the ground state (n=0) and the first
-five excited states (n=1..5). In a harmonic calculation, none of the
-vibrational states interact with the other states (the Hamiltonian is
-diagonal). The cubic coupling term allows the ground and excited states to
-interact and mix together.
+where w=1000.0 and y=250.0 cm^-1. This input produces a 6x6 VCI Hamiltonain.
+The calculation includes the ground state (n=0) and the first five excited
+states (n=1..5). In a harmonic calculation, none of the vibrational states
+interact with the other states (the Hamiltonian is diagonal). The cubic
+coupling term allows the ground and excited states to interact and mix
+together.
