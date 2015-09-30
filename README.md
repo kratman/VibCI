@@ -152,7 +152,7 @@ constant to the Hamiltonian.
 Here y is the cubic force constant.
 
 There are typically no analytic solutions for anharmonic oscillators, however,
-the energies can be calculated using the  perturbation theory or configuration
+the energies can be calculated using perturbation theory or configuration
 interaction methodologies.
 
 LOVCI input of the cubic Hamiltonian with a 5 quanta basis set is given by
@@ -165,7 +165,7 @@ Spectator_modes: 0
 Force_constants: 1
  3 0 0 0 250.0
 ```
-where w=1000.0 and y=250.0 cm^-1. This input produces a 6x6 VCI Hamiltonain.
+where w=1000.0 and y=250.0 cm^-1. This input produces a 6x6 VCI Hamiltonian.
 The calculation includes the ground state (n=0) and the first five excited
 states (n=1..5). In a harmonic calculation, none of the vibrational states
 interact with the other states (the Hamiltonian is diagonal). The cubic
