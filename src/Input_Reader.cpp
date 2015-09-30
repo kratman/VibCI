@@ -398,6 +398,16 @@ void ReadCIInput(MatrixXd& VCIHam, fstream& vcidata)
   cout << "Spectrum settings:" << '\n';
   cout << "  Active modes: " << BasisCount.size() << '\n';
   cout << "  Spectator modes: " << SpectModes.size() << '\n';
+  cout << "  Broadening: ";
+  if (GauBroad)
+  {
+    cout << "Gaussian";
+  }
+  else
+  {
+    cout << "Lorentzian";
+  }
+  cout << '\n';
   cout.precision(3); //Truncate numbers
   cout << "  Line width: " << LorentzWid << '\n';
   cout << "  Resolution: " << DeltaFreq << '\n';

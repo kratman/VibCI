@@ -378,7 +378,7 @@ void PrintSpectrum(VectorXd& Freqs, MatrixXd& Psi, fstream& outfile)
     for (unsigned int i=0;i<BasisSet.size();i++)
     {
       //Loop over states
-      if (Freqs(i) > 0)
+      if ((Freqs(i) > 0) and (Freqs(i) < (1.10*Fmax)))
       {
         //Add all states besides the VCI ground state
         #pragma omp parallel for reduction(+:In)

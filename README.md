@@ -53,6 +53,63 @@ user:$ make install
 
 ### Running a calculation
 
+Only a single input file is required to run the LOVCI program.
+
+#### Direct product basis sets
+
+Basis: Product <br>
+Broadening: [type] [width] [resolution] [cutoff] <br>
+Modes: [Nm] <br>
+ [id] [freq] [quanta] [intensity] <br>
+ ... <br>
+Spectator_modes: [Ns] <br>
+ [id] [freq] [intensity] <br>
+ ... <br>
+Force_constants: [Nfc] <br>
+ [power] [modes] [value] <br>
+ ... <br>
+
+#### Progression basis sets
+
+Basis: Progression <br>
+Prog_mode: [pmode] [pquanta] <br>
+Mixed_modes: [Np] <br>
+ [modes] <br>   
+Broadening: [type] [width] [resolution] [cutoff] <br>
+Modes: [Nm] <br>
+ [id] [freq] [quanta] [intensity] <br>
+ ... <br>
+Spectator_modes: [Ns] <br>   
+ [id] [freq] [intensity] <br>
+ ... <br>
+Force_constants: [Nfc] <br>  
+ [power] [modes] [value] <br>
+ ... <br>
+
+#### Keywords
+
+Basis: There are two options for the basis keyword (product,progression).
+A product basis is a large complete basis. Progression basis sets are
+small and assume that there are 1D modes combined with a Franck-Condon
+progression with a low frequency mode.
+
+Prog_mode: The prog_mode keyword needs two values (pmode,pquanta). The value
+of pmode is the integer ID of the low-frequency mode used in the progression.
+The value of pquanta is the number of quanta to include in the progressions.
+
+Mixed_modes: The mixed_modes keyword takes the number of modes that have
+a progression (Np) followed by a list of integer IDs for the modes.
+
+Broadening: 
+
+
+Modes: 
+
+
+Spectator_modes: 
+
+
+Force_constants: 
 
 
 ### Theory: Vibrational Configuration Interaction
