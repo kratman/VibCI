@@ -20,7 +20,7 @@ The Makefile can be used to generate both files. Since LOVCI is designed to
 be simple, only a small number of packages are required to compile the code.
 An approximate list of packages is given below.
 ```
- LOVCI binary: OpenMP, Eigen3
+LOVCI binary: OpenMP, Eigen3
 ```
 
 To install LOVCI, clone the git repository
@@ -125,4 +125,43 @@ given in the output of common QM packages (e.g. Gaussian, GAMESS).
 
 ### Theory: Vibrational Configuration Interaction
 
+Scientific literature has a great deal of information on the harmonic and
+anharmonic oscillators. The purpose of this section is not to give a complete
+description of the theory, but rather to give the bare minimum amount of
+information required to perform vibrational configuration interaction (VCI)
+calculations.
 
+The Hamiltonian (H) for a 1D harmonic oscillator is given by
+```
+ H = p^2/2+w*q^2
+ E = <n|H|n> = (n+1/2)*w
+```
+where p is the momentum, w is the frequency, q is the normal mode, and n is
+the number of quanta in the state. An anharmonic oscillator has force
+constants with powers other than 2. As an example, we will add a cubic force
+constant to the Hamiltonian.
+```
+ H = p^2/2+(w/2)*q^2+(y/6)*q^3
+```
+Here y is the cubic force constant.
+
+There are typically no analytic solutions for anharmonic oscillators, however,
+the energies can be calculated using the  perturbation theory or configuration
+interaction methodologies.
+
+LOVCI input of the cubic Hamiltonian with a 5 quanta basis set is given by
+```
+Basis: Product
+Broadening: Lorentzian 10.0 0.05 5000.0
+Modes: 1
+ 0 1000.0 5 1.0
+Spectator_modes: 0
+Force_constants: 1
+ 3 0 0 0 250.0
+```
+where w=1000.0 and y=250.0 cm^-1. This input would produce a 6x6 VCI
+Hamiltonain. The calculation includes the ground state (n=0) and the first
+five excited states (n=1..5). In a harmonic calculation, none of the
+vibrational states interact with the other states (the Hamiltonian is
+diagonal). The cubic coupling term allows the ground and excited states to
+interact and mix together.
