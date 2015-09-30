@@ -57,34 +57,34 @@ Only a single input file is required to run the LOVCI program.
 
 #### Direct product basis sets
 
-Basis: Product <br>
-Broadening: [type] [width] [resolution] [cutoff] <br>
-Modes: [Nm] <br>
- [id] [freq] [quanta] [intensity] <br>
- ... <br>
-Spectator_modes: [Ns] <br>
- [id] [freq] [intensity] <br>
- ... <br>
-Force_constants: [Nfc] <br>
- [power] [modes] [value] <br>
- ... <br>
+Basis: Product
+Broadening: [type] [width] [resolution] [cutoff]
+Modes: [Nm]
+ [id] [freq] [quanta] [intensity]
+ ...
+Spectator_modes: [Ns]
+ [id] [freq] [intensity]
+ ...
+Force_constants: [Nfc]
+ [power] [modes] [value]
+ ...
 
 #### Progression basis sets
 
-Basis: Progression <br>
-Prog_mode: [pmode] [pquanta] <br>
-Mixed_modes: [Np] <br>
- [modes] <br>   
-Broadening: [type] [width] [resolution] [cutoff] <br>
-Modes: [Nm] <br>
- [id] [freq] [quanta] [intensity] <br>
- ... <br>
-Spectator_modes: [Ns] <br>   
- [id] [freq] [intensity] <br>
- ... <br>
-Force_constants: [Nfc] <br>  
- [power] [modes] [value] <br>
- ... <br>
+Basis: Progression
+Prog_mode: [pmode] [pquanta]
+Mixed_modes: [Np]
+ [modes]
+Broadening: [type] [width] [resolution] [cutoff]
+Modes: [Nm]
+ [id] [freq] [quanta] [intensity]
+ ...
+Spectator_modes: [Ns]
+ [id] [freq] [intensity]
+ ...
+Force_constants: [Nfc]
+ [power] [modes] [value]
+ ...
 
 #### Keywords
 
