@@ -51,39 +51,40 @@ The Makefile can produce both the documentation and the binary.
 user:$ make install
 ```
 
-### Running a calculation
+### Performing VCI calculations
 
-Only a single input file is required to run the LOVCI program.
+Only a single input file is required to run the LOVCI program. Example input
+can be found in the tests and doc directories.
 
 #### Direct product basis sets
 
-Basis: Product
-Broadening: [type] [width] [resolution] [cutoff]
-Modes: [Nm]
- [id] [freq] [quanta] [intensity]
- ...
-Spectator_modes: [Ns]
- [id] [freq] [intensity]
- ...
-Force_constants: [Nfc]
- [power] [modes] [value]
+Basis: Product <br>
+Broadening: [type] [width] [resolution] [cutoff] <br>
+Modes: [Nm] <br>
+ [id] [freq] [quanta] [intensity] <br>
+ ... <br>
+Spectator_modes: [Ns] <br>
+ [id] [freq] [intensity] <br>
+ ... <br>
+Force_constants: [Nfc] <br>
+ [power] [modes] [value] <br>
  ...
 
 #### Progression basis sets
 
-Basis: Progression
-Prog_mode: [pmode] [pquanta]
-Mixed_modes: [Np]
- [modes]
-Broadening: [type] [width] [resolution] [cutoff]
-Modes: [Nm]
- [id] [freq] [quanta] [intensity]
- ...
-Spectator_modes: [Ns]
- [id] [freq] [intensity]
- ...
-Force_constants: [Nfc]
- [power] [modes] [value]
+Basis: Progression <br>
+Prog_mode: [pmode] [pquanta] <br>
+Mixed_modes: [Np] <br>
+ [modes] <br>
+Broadening: [type] [width] [resolution] [cutoff] <br>
+Modes: [Nm] <br>
+ [id] [freq] [quanta] [intensity] <br>
+ ... <br>
+Spectator_modes: [Ns] <br>
+ [id] [freq] [intensity] <br>
+ ... <br>
+Force_constants: [Nfc] <br>
+ [power] [modes] [value] <br>
  ...
 
 #### Keywords
@@ -100,17 +101,27 @@ The value of pquanta is the number of quanta to include in the progressions.
 Mixed_modes: The mixed_modes keyword takes the number of modes that have
 a progression (Np) followed by a list of integer IDs for the modes.
 
-Broadening: 
+Broadening: There are two types of line shapes in LOVCI (Lorentzian,Gaussian).
+Both types of line shapes require a line width, the resolution for
+printing the spectrum, and a maximum frequency for the final spectrum
+(cutoff).
 
+Modes: The keyword needs the total number of vibrational modes (Nm), followed
+by the properties of each mode. Every mode should be labeled with an integer
+ID, a frequency (cm^-1), the maximum number of quanta in the basis set, and
+the intensity. The modes are labeled from 0 to (Nm-1).
 
-Modes: 
+Spectator_modes: The input for the (Ns) spectator modes is nearly the same as
+the input for active modes. The spectators are labeled from (Nm) to (Nm+Ns+1).
+Since spectator modes are not included in the basis set, there is no need to
+specify the number of quanta.
 
-
-Spectator_modes: 
-
-
-Force_constants: 
-
+Force_constants: The (Nfc) anharmonic force constants are defined by the
+total power of the modes (cubic=3,quartic=4,etc), the list of integer IDs
+for the modes, and the value of the force constant. The list of modes can
+be given in any order and the force constants can include any positive
+power. The values of the force constants (cm^-1) are the same as those
+given in the output of common QM packages (e.g. Gaussian, GAMESS).
 
 ### Theory: Vibrational Configuration Interaction
 
