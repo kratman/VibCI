@@ -52,8 +52,10 @@ user:$ make install
 
 ### Performing VCI calculations
 
-Only a single input file is required to run the LOVCI program. Example input
-can be found in the tests and doc directories.
+Only a single input file is required to run the LOVCI program. All keywords
+in the input file must be given in the correct order.
+
+Example input can be found in the tests and doc directories.
 ```
 user:$ lovci -n Ncpus -i input.inp -o spectrum.txt
 
@@ -96,9 +98,11 @@ Force_constants: [Nfc] <br>
 #### Keywords
 
 Basis: There are two options for the basis keyword (product,progression).
-A product basis is a large complete basis. Progression basis sets are
+A product basis is a large basis set containing all combinations of states up
+to the maximum number of quanta in each mode. Progression basis sets are
 small and assume that there are 1D modes combined with a Franck-Condon
-progression with a low frequency mode.
+progression in a low frequency mode. A progression basis is useful for simple
+models where only a small number of combination bands are important.
 
 Prog_mode: The prog_mode keyword needs two values (pmode,pquanta). The value
 of pmode is the integer ID of the low-frequency mode used in the progression.
@@ -139,7 +143,7 @@ calculations.
 
 The Hamiltonian (H) for a 1D harmonic oscillator is given by
 ```
- H = p^2/2+w*q^2
+ H = p^2/2+(w/2)*q^2
  E = <n|H|n> = (n+1/2)*w
 ```
 where p is the momentum, w is the frequency, q is the normal mode, and n is
