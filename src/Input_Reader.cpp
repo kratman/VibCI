@@ -203,7 +203,19 @@ void ReadCIInput(MatrixXd& VCIHam, fstream& vcidata)
   {
     //Actual vibrational modes
     HOFunc tmp;
-    vcidata >> dummy; //Throw out ID number
+    int modeid;
+    vcidata >> modeid; //Read mode ID
+    //Check mode order
+    if (modeid != i)
+    {
+      //Print an error message
+      cout << "Error: Expected mode " << i;
+      cout << " but read data for mode " << modeid;
+      cout << '\n' << '\n';
+      cout.flush(); //Print message
+      //Quit
+      exit(0);
+    }
     vcidata >> tmp.Freq; //Frequency
     vcidata >> tmp.Quanta; //Max number of quanta
     vcidata >> tmp.ModeInt; //Intensity
@@ -216,7 +228,19 @@ void ReadCIInput(MatrixXd& VCIHam, fstream& vcidata)
   {
     //Spectator modes
     HOFunc tmp;
-    vcidata >> dummy; //Throw out ID number
+    int modeid;
+    vcidata >> modeid; //Read mode ID
+    //Check mode order
+    if (modeid != (Nmodes+i))
+    {
+      //Print an error message
+      cout << "Error: Expected mode " << (Nmodes+i);
+      cout << " but read data for mode " << modeid;
+      cout << '\n' << '\n';
+      cout.flush(); //Print message
+      //Quit
+      exit(0);
+    }
     vcidata >> tmp.Freq; //Frequency
     tmp.Quanta = 1; //Only one state
     vcidata >> tmp.ModeInt; //Intensity

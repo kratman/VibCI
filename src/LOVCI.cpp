@@ -54,11 +54,12 @@ int main(int argc, char* argv[])
   //Calculate spectrum
   cout << "Constructing the CI Hamiltonian...";
   cout << '\n';
-  cout.flush(); //Print progress
   cout << "  Zeroth-order Hamiltionian";
+  cout.flush(); //Print progress
   ZerothHam(VCIHam); //Harmonic terms
   cout << "; Done." << '\n';
   cout << "  Adding anharmonic potential";
+  cout.flush(); //Print progress
   AnharmHam(VCIHam); //Anharmonic terms
   cout << "; Done." << '\n';
   cout << '\n';
@@ -68,11 +69,34 @@ int main(int argc, char* argv[])
   VCIDiagonalize(VCIHam,CIVec,CIFreq); //Diagonalization wrapper
   //End of section
 
+  //Free memory
+  VCIHam = MatrixXd(1,1);
+  //End of section
+
   //Calculate and remove ZPE
-  VectorXd UnitVec(BasisSet.size());
-  UnitVec.setOnes(); //Create a unit vector
-  Ezpe = CIFreq.minCoeff(); //Save ZPE
-  CIFreq -= (Ezpe*UnitVec); //Remove ZPE
+  VectorXd UnitVec(BasisSet.size()); //Create a unit vector
+  UnitVec.setOnes(); //Subtracting a constant requires a vector
+  Ezpe = CIFreq.minCoeff(); //Find ZPE
+  if (Ezpe < 0)
+  {
+    //Print error
+    cout << "Error: The zero-point energy is negative.";
+    cout << " Something is wrong.";
+    cout << '\n';
+    cout << "Try reducing the number of quanta or removing";
+    cout << " large anharmonic";
+    cout << '\n';
+    cout << "force constants.";
+    cout << '\n' << '\n';
+    cout.flush();
+    //Quit
+    exit(0);
+  }
+  CIFreq -= (Ezpe*UnitVec); //Remove ZPE from all frequencies
+  //End of section
+
+  //Free memory
+  UnitVec = VectorXd(1);
   //End of section
 
   //Print results
@@ -112,6 +136,7 @@ int main(int argc, char* argv[])
   cout << '\n' << '\n';
   cout << "Done.";
   cout << '\n' << '\n';
+  cout.flush(); //Print progress
   //End of section
 
   //Empty memory and delete junk files

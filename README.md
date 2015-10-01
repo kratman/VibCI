@@ -98,40 +98,42 @@ Force_constants: [Nfc] <br>
 #### Keywords
 
 Basis: There are two options for the basis keyword (product,progression).
-A product basis is a large basis set containing all combinations of states up
-to the maximum number of quanta in each mode. Progression basis sets are
-small and assume that there are 1D modes combined with a Franck-Condon
+A product basis is a large basis set containing all possible combinations of
+states up to the maximum number of quanta in each mode. Progression basis sets
+are small and assume that there are 1D modes combined with a Franck-Condon
 progression in a low frequency mode. A progression basis is useful for simple
 models where only a small number of combination bands are important.
 
 Prog_mode: The prog_mode keyword needs two values (pmode,pquanta). The value
 of pmode is the integer ID of the low-frequency mode used in the progression.
-The value of pquanta is the number of quanta to include in the progressions.
+The value of pquanta is the number of quanta to include in the each of the
+progressions.
 
 Mixed_modes: The mixed_modes keyword takes the number of modes that have
-a progression (Np) followed by a list of integer IDs for the modes.
+a progression (Np) followed by a list of the integer IDs for the modes.
 
 Broadening: There are two types of line shapes in LOVCI (Lorentzian,Gaussian).
-Both types of line shapes require a line width, the resolution for
-printing the spectrum, and a maximum frequency for the final spectrum
-(cutoff).
+Both types of line shapes require a line width, the resolution of the
+spectrum, and a maximum frequency for the spectrum (cutoff).
 
-Modes: The keyword needs the total number of vibrational modes (Nm), followed
-by the properties of each mode. Every mode should be labeled with an integer
-ID, a frequency (cm^-1), the maximum number of quanta in the basis set, and
-the intensity. The modes are labeled from 0 to (Nm-1).
+Modes: The keyword needs the total number of active vibrational modes (Nm),
+followed by the properties of each mode. Every mode is given an integer ID, a
+frequency (cm^-1), the maximum number of quanta in the basis set, and the
+intensity. The modes are labeled from 0 to (Nm-1).
 
-Spectator_modes: The input for the (Ns) spectator modes is nearly the same as
-the input for active modes. The spectators are labeled from (Nm) to (Nm+Ns+1).
-Since spectator modes are not included in the basis set, there is no need to
-specify the number of quanta.
+Spectator_modes: Spectator modes appear in the vibrational spectrum and
+contribute to the zero-point energy, but are not included in the VCI basis
+set. The input for the (Ns) spectator modes is nearly the same as the input
+for the active modes. The spectators are labeled from (Nm) to (Nm+Ns+1). Since
+spectator modes are not included in the basis set, there is no need to specify
+the number of quanta.
 
 Force_constants: The (Nfc) anharmonic force constants are defined by the
-total power of the modes (cubic=3,quartic=4,etc), the list of integer IDs
-for the modes, and the value of the force constant. The list of modes can
-be given in any order and the force constants can include any positive
-power. The values of the force constants (cm^-1) are the same as those
-given in the output of common QM packages (e.g. Gaussian, GAMESS).
+total power of the modes (quadratic=2,cubic=3,quartic=4,etc), the list of
+integer IDs for the modes, and the value of the force constant. The list of
+modes can be given in any order and the force constants can include any
+positive power. The values of the force constants (in cm^-1) are the same as
+those given in the output of common QM packages (e.g. Gaussian, GAMESS).
 
 ### Theory: Vibrational Configuration Interaction
 
@@ -155,11 +157,13 @@ constant to the Hamiltonian.
 ```
 Here y is the cubic force constant.
 
-There are typically no analytic solutions for anharmonic oscillators, however,
-the energies can be calculated using perturbation theory or configuration
-interaction methodologies.
+There are typically no exact analytic solutions for anharmonic oscillators,
+however, the energies can be calculated using perturbation theory or
+configuration interaction methodologies. Perturbative methods do not require
+matrices, but have difficulty dealing with degenerate states and Fermi
+resonances.
 
-LOVCI input of the cubic Hamiltonian with a 5 quanta basis set is given by
+LOVCI input for the cubic Hamiltonian with a 5 quanta basis set is given by
 ```
 Basis: Product
 Broadening: Lorentzian 10.0 0.05 5000.0
@@ -175,3 +179,26 @@ states (n=1..5). In a harmonic calculation, none of the vibrational states
 interact with the other states (the Hamiltonian is diagonal). The cubic
 coupling term allows the ground and excited states to interact and mix
 together.
+
+The VCI matrix elements can be calculated with the creation (c) and
+annihilation (c') ladder operators.
+```
+ c|n> = sqrt(n+1)|n+1>
+
+ c'|n> = sqrt(n)|n-1>
+```
+
+The zeroth-order Hamiltonian can be rewritten as
+```
+ H = p^2/2+(w/2)*q^2 = (cc'+1/2)*w
+```
+and the cubic Hamiltonian is given by
+```
+ H = w*(cc'+1/2)+(y/(6*sqrt(2)^3))*(c+c')^3
+```
+where
+```
+ q = (1/sqrt(2))*(c+c')
+```
+Since the integrals are analytic, the primary cost of the calculations is due
+to the number of excited states included in the VCI Hamiltonian matrix.
