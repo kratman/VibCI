@@ -148,7 +148,7 @@ data = []
 result += " Four mode progression: "
 if (ZPE == "4374.59"):
   result += ClrSet.TPass+"Pass"+ClrSet.Reset+", "
-else: 
+else:
   result += ClrSet.TFail+"Fail"+ClrSet.Reset+", "
 result += RunTime
 print(result)

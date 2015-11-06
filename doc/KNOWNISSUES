@@ -1,4 +1,4 @@
-+Results need to be thoroughly checked for accuracy.
-+The automated test suite needs to be written.
-+More comments need to be added to the code.
-+Parallel calculations slow until there are over 1000 basis functions
+-Results need to be thoroughly checked for accuracy
+-The function which counts permutations needs to be checked
+-More comments need to be added to the code
+-Parallel calculations slow until there are over 1000 basis functions
