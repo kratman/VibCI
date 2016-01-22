@@ -85,7 +85,7 @@ for line in data:
     if ((line[0] == "Run") and (line[1] == "time:")):
       RunTime = line[2]+" "+line[3]
 data = []
-result += " Harmonic oscillator: "
+result += " Harmonic oscillator:      "
 if (ZPE == "2825.00"):
   result += ClrSet.TPass+"Pass"+ClrSet.Reset+", "
 else:
@@ -115,7 +115,7 @@ for line in data:
     if ((line[0] == "Run") and (line[1] == "time:")):
       RunTime = line[2]+" "+line[3]
 data = []
-result += " Anharmonic oscillator: "
+result += " Anharmonic oscillator:    "
 if (ZPE == "497.57"):
   result += ClrSet.TPass+"Pass"+ClrSet.Reset+", "
 else: 
@@ -145,7 +145,7 @@ for line in data:
     if ((line[0] == "Run") and (line[1] == "time:")):
       RunTime = line[2]+" "+line[3]
 data = []
-result += " Four mode progression: "
+result += " Four mode progression:    "
 if (ZPE == "4374.59"):
   result += ClrSet.TPass+"Pass"+ClrSet.Reset+", "
 else:
