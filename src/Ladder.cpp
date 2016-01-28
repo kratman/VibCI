@@ -169,7 +169,6 @@ void ZerothHam(MatrixXd& H)
     //Update Hamiltonian
     H(i,i) += Ei;
   }
-  #pragma omp barrier
   return;
 };
 
@@ -193,7 +192,6 @@ void AnharmHam(MatrixXd& H)
       H(i,j) += Vij;
     }
   }
-  #pragma omp barrier
   return;
 };
 
@@ -373,7 +371,6 @@ void PrintSpectrum(VectorXd& Freqs, MatrixXd& Psi, fstream& outfile)
       //Sum intensities
       In += I;
     }
-    #pragma omp barrier
     //VCI modes
     for (unsigned int i=0;i<BasisSet.size();i++)
     {
@@ -406,7 +403,6 @@ void PrintSpectrum(VectorXd& Freqs, MatrixXd& Psi, fstream& outfile)
             In += I;
           }
         }
-        #pragma omp barrier
       }
     }
     //Write data
